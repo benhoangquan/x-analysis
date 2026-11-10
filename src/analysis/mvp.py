@@ -8,30 +8,19 @@ from __future__ import annotations
 
 from pathlib import Path
 
+import numpy as np
 import pandas as pd
 
 from src.enrichment.rules import add_rule_features
 from src.ingestion.load_raw import load
+from src.metrics.baselines import ReachModel, add_baselines, sanity_table
 
-MATURITY_DAYS = 7
 OUT_PARQUET = Path("data/processed/posts_enriched.parquet")
 
 
-def build(inputs: list[Path]) -> pd.DataFrame:
+def build(inputs: list[Path]) -> tuple[pd.DataFrame, ReachModel]:
     df, _ = load(*inputs)
-    df = add_rule_features(df)
-    created = pd.to_datetime(df["created_at"], utc=True)
-    collected = pd.to_datetime(df["collected_at"], utc=True)
-    df["age_days"] = (collected - created).dt.total_seconds() / 86400
-    df["mature"] = df["age_days"] >= MATURITY_DAYS
-    self_reply = df["is_reply"] & (
-        df["in_reply_to_username"].str.lower() == df["author_handle"].str.lower()
-    )
-    df["is_self_reply"] = self_reply
-    # Eligible: originals and quotes; drop retweets and any reply (self-replies are thread
-    # continuations whose opener is already counted).
-    df["eligible"] = ~df["is_retweet"] & ~df["is_reply"]
-    return df
+    return add_baselines(add_rule_features(df))
 
 
 def _md(df: pd.DataFrame, fmt: dict[str, str] | None = None) -> str:
@@ -170,14 +159,52 @@ authors); the discovery cohort is empty, so nothing here speaks to researcher po
 """  # fmt: skip
 
 
+def sanity_report(df: pd.DataFrame, model: ReachModel) -> str:
+    fit = (
+        f"slope {model.slope:.2f}, intercept {model.intercept:.2f}"
+        if not np.isnan(model.slope)
+        else "not estimable"
+    )
+    status = "reliable" if model.reliable else "NOT reliable (below the 20 posts / 10 authors gate)"
+    t = sanity_table(df)
+    base = df[df["baseline_ratio"].notna()]
+    base_n = f"{len(base)} posts across {base['author_handle'].nunique()} authors"
+    return f"""# Baselines sanity check
+
+Reach model: log(views) = intercept + slope * log(max(followers, 100)). Fit: {fit} on
+{model.n_posts} posts from {model.n_authors} authors. Status: **{status}**.
+Posts with a trailing-30-day baseline (>=3 prior eligible posts, OWN/BENCHMARK): {base_n}.
+
+## Per follower tier (eligible, mature posts)
+
+{
+        _md(
+            t,
+            {
+                "median_views": "{:,.0f}",
+                "median_r_out": "{:.1f}",
+                "median_reach_vs_expected": "{:.2f}",
+                "median_s_intent": "{:.4f}",
+                "median_cr_bmk": "{:.2f}",
+            },
+        )
+    }
+
+Review checklist: reach_vs_expected medians near 1.0 within each tier; the fit slope below 1
+(views grow slower than followers); tiers with one author are not comparable to each other.
+"""
+
+
 def main() -> None:
     inputs = sorted(p for p in Path("data/raw").glob("*.jsonl"))
-    df = build(inputs).drop_duplicates("post_id")
+    df, model = build(inputs)
+    df = df.drop_duplicates("post_id")
     OUT_PARQUET.parent.mkdir(parents=True, exist_ok=True)
     df.to_parquet(OUT_PARQUET, index=False)
     Path("reports").mkdir(exist_ok=True)
     Path("reports/mvp-findings.md").write_text(report(df))
-    print(f"{len(df)} posts -> {OUT_PARQUET}; report -> reports/mvp-findings.md")
+    Path("reports/baselines-sanity.md").write_text(sanity_report(df, model))
+    print(f"{len(df)} posts -> {OUT_PARQUET}; reports written")
 
 
 if __name__ == "__main__":
