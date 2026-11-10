@@ -67,9 +67,30 @@ class Post(BaseModel):
     is_retweet: bool = False
     in_reply_to_username: str | None = None
     media_count: int = Field(default=0, ge=0)
+    media_kind: str | None = None  # photo | video | animated_gif (first attachment)
+    media_urls: list[str] = Field(default_factory=list)
 
 
 class AccountSnapshot(BaseModel):
     author_handle: str
     followers: int = Field(ge=0)
     collected_at: datetime
+
+
+class PostLabels(BaseModel):
+    """Classifier output for one post, cached by (post_id, label_version)."""
+
+    post_id: str
+    label_version: str
+    is_researcher_post: bool | None = None
+    researcher_prob: float | None = None
+    hook_archetype: HookArchetype | None = None
+    archetype_probs: dict[str, float] = Field(default_factory=dict)
+    visual_type: VisualType | None = None
+    visual_source: str | None = None  # "jev" | "rule"
+    technical_rigor_score: int | None = Field(default=None, ge=1, le=5)
+    rigor_prob: float | None = None
+    label_confidence: float | None = None  # min over the label confidences
+    label_rationale: str | None = None  # Jev returns probabilities, not rationales
+    image_used: bool = False
+    error: str | None = None

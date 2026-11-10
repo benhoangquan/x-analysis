@@ -25,8 +25,8 @@ Changes in revision 2:
 | # | Item | Needed by |
 |---|---|---|
 | A | **Impressions from the actor.** The actor page's sample output shows likes, reposts, replies, quotes, bookmarks and author followers, but no view count. Without views, none of the three AGENTS.md formulas can be computed. The 50-post test run settles this; if views are absent, another actor or the official X API is needed. | Milestone 1 |
-| B | **Jev access.** Jev is in early access behind a waitlist. The blog post gives no model ID, API URL or authentication; those are in the docs (https://docs.typesafe.ai/introduction) and console (https://console.typesafe.ai/). Access and an API key are needed. | Milestone 3 |
-| C | **Jev does not accept images.** The post says it does not run on images yet. `visual_type` therefore needs a different path (see Enrichment). | Milestone 3 |
+| B | ~~**Jev access.**~~ Resolved 2026-11-10: token in `.env` (`JEV_TOKEN`), endpoint `POST https://api.typesafe.ai/v1/systemone`, model `jev-latest` (1.14). Jev is in early access behind a waitlist. The blog post gives no model ID, API URL or authentication; those are in the docs (https://docs.typesafe.ai/introduction) and console (https://console.typesafe.ai/). Access and an API key are needed. | Milestone 3 |
+| C | ~~**Jev does not accept images.**~~ Resolved: Jev 1.13 and 1.14 accept PNG/JPEG (not video). `visual_type` for photos comes from Jev; video is rule-based. The original note: The post says it does not run on images yet. `visual_type` therefore needs a different path (see Enrichment). | Milestone 3 |
 | D | Apify token on a paid plan (free accounts cannot call this actor through the API). | Milestone 1 |
 
 ## Corpus

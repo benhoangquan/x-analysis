@@ -32,6 +32,8 @@ ALIASES: dict[str, tuple[str, ...]] = {
     "is_retweet": ("is_retweet", "isRetweet"),
     "in_reply_to_username": ("in_reply_to_username", "inReplyToUsername"),
     "media_count": ("media_count",),
+    "media_kind": ("media_kind",),
+    "media_urls": ("media_urls",),
 }
 
 
@@ -68,6 +70,11 @@ def normalise_row(row: Mapping[str, Any]) -> dict[str, Any]:
     row = _flatten(row)
     if "media_count" not in row and isinstance(row.get("media"), list):
         row["media_count"] = len(row["media"])
+    ext = (row.get("extendedEntities") or {}).get("media")
+    if "media_kind" not in row and isinstance(ext, list) and ext:
+        row["media_kind"] = ext[0].get("type")
+    if "media_urls" not in row and isinstance(row.get("media"), list):
+        row["media_urls"] = [u for u in row["media"] if isinstance(u, str)]
     if row.get("isQuote") is True and "post_kind" not in row:
         row["post_kind"] = "quote"
     out = {field: _pick(row, names) for field, names in ALIASES.items()}
