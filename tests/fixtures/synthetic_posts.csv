@@ -1,0 +1,7 @@
+post_id,author_handle,cohort,created_at,collected_at,source,followers_at_collection,text,impressions,likes,replies,reposts,quotes,bookmarks
+1,alice_ml,DISCOVERED,2026-10-01T12:00:00Z,2026-11-10T00:00:00Z,fixture,1000,Ablation shows LoRA rank saturates at r=16,50000,400,20,30,10,100
+2,bob_nlp,DISCOVERED,2026-10-02T12:00:00Z,2026-11-10T00:00:00Z,fixture,50,Tiny account post,2000,10,1,1,0,5
+3,carol_dl,BENCHMARK,2026-10-03T12:00:00Z,2026-11-10T00:00:00Z,fixture,200000,Zero impressions edge case,0,0,0,0,0,0
+4,dave_ai,OWN,2026-10-04T12:00:00Z,2026-11-10T00:00:00Z,fixture,500,Missing impressions,,3,0,0,0,1
+1,alice_ml,DISCOVERED,2026-10-01T12:00:00Z,2026-11-10T00:00:00Z,fixture,1000,Ablation shows LoRA rank saturates at r=16,50000,400,20,30,10,100
+5,eve_ml,DISCOVERED,2026-10-05T12:00:00Z,2026-11-10T00:00:00Z,fixture,,No follower count,100,1,0,0,0,0

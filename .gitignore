@@ -1,0 +1,12 @@
+.venv/
+__pycache__/
+.pytest_cache/
+.ruff_cache/
+.env
+.DS_Store
+# Raw and derived data stay local; fixtures live in tests/fixtures
+data/raw/*
+data/processed/*
+data/swipe_file/*
+data/gold/*
+!data/**/.gitkeep
