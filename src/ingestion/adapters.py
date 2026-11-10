@@ -28,6 +28,10 @@ ALIASES: dict[str, tuple[str, ...]] = {
     "collected_at": ("collected_at",),
     "source": ("source",),
     "post_kind": ("post_kind",),
+    "is_reply": ("is_reply", "isReply"),
+    "is_retweet": ("is_retweet", "isRetweet"),
+    "in_reply_to_username": ("in_reply_to_username", "inReplyToUsername"),
+    "media_count": ("media_count",),
 }
 
 
@@ -62,6 +66,10 @@ def _parse_dt(value: Any) -> Any:
 
 def normalise_row(row: Mapping[str, Any]) -> dict[str, Any]:
     row = _flatten(row)
+    if "media_count" not in row and isinstance(row.get("media"), list):
+        row["media_count"] = len(row["media"])
+    if row.get("isQuote") is True and "post_kind" not in row:
+        row["post_kind"] = "quote"
     out = {field: _pick(row, names) for field, names in ALIASES.items()}
     if "created_at" in out:
         out["created_at"] = _parse_dt(out["created_at"])

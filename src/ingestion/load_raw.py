@@ -23,17 +23,19 @@ def _read_rows(input_path: Path) -> list[dict]:
     if input_path.suffix == ".jsonl":
         collected = datetime.fromtimestamp(input_path.stat().st_mtime, UTC).isoformat()
         rows = [json.loads(x) for x in input_path.read_text().splitlines() if x.strip()]
+        rows = [r for r in rows if not r.get("noResults")]  # actor placeholder rows
         for r in rows:
             handle = (r.get("author") or {}).get("userName") or r.get("userName") or ""
             r.setdefault("cohort", str(cohort_for(handle)))
             r.setdefault("collected_at", collected)
-            r.setdefault("source", "apify")
+            r["source"] = "apify"  # overrides the actor's own field (posting client)
         return rows
     return pd.read_csv(input_path, dtype=str, keep_default_na=False).to_dict("records")
 
 
-def load(input_path: Path) -> tuple[pd.DataFrame, list[tuple[int, str]]]:
-    posts, rejected = rows_to_posts(_read_rows(input_path))
+def load(*input_paths: Path) -> tuple[pd.DataFrame, list[tuple[int, str]]]:
+    rows = [r for p in input_paths for r in _read_rows(p)]
+    posts, rejected = rows_to_posts(rows)
     df = pd.DataFrame([p.model_dump(mode="python") for p in posts])
     if df.empty:
         return df, rejected
@@ -45,11 +47,11 @@ def load(input_path: Path) -> tuple[pd.DataFrame, list[tuple[int, str]]]:
 
 def main() -> None:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--input", type=Path, required=True)
+    parser.add_argument("--input", type=Path, nargs="+", required=True)
     parser.add_argument("--output", type=Path, default=DEFAULT_OUT)
     args = parser.parse_args()
 
-    df, rejected = load(args.input)
+    df, rejected = load(*args.input)
     args.output.parent.mkdir(parents=True, exist_ok=True)
     df.to_parquet(args.output, index=False)
     print(f"wrote {len(df)} posts to {args.output}; rejected {len(rejected)}")

@@ -63,6 +63,11 @@ class Post(BaseModel):
     quotes: int = Field(ge=0)
     bookmarks: int | None = Field(default=None, ge=0)
 
+    is_reply: bool = False
+    is_retweet: bool = False
+    in_reply_to_username: str | None = None
+    media_count: int = Field(default=0, ge=0)
+
 
 class AccountSnapshot(BaseModel):
     author_handle: str
