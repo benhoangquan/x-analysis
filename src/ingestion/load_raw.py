@@ -6,19 +6,34 @@ python -m src.ingestion.load_raw --input data/raw/posts_export.csv
 from __future__ import annotations
 
 import argparse
+import json
+from datetime import UTC, datetime
 from pathlib import Path
 
 import pandas as pd
 
+from src.config import cohort_for
 from src.ingestion.adapters import rows_to_posts
 from src.metrics.formulas import add_metrics
 
 DEFAULT_OUT = Path("data/processed/posts.parquet")
 
 
+def _read_rows(input_path: Path) -> list[dict]:
+    if input_path.suffix == ".jsonl":
+        collected = datetime.fromtimestamp(input_path.stat().st_mtime, UTC).isoformat()
+        rows = [json.loads(x) for x in input_path.read_text().splitlines() if x.strip()]
+        for r in rows:
+            handle = (r.get("author") or {}).get("userName") or r.get("userName") or ""
+            r.setdefault("cohort", str(cohort_for(handle)))
+            r.setdefault("collected_at", collected)
+            r.setdefault("source", "apify")
+        return rows
+    return pd.read_csv(input_path, dtype=str, keep_default_na=False).to_dict("records")
+
+
 def load(input_path: Path) -> tuple[pd.DataFrame, list[tuple[int, str]]]:
-    raw = pd.read_csv(input_path, dtype=str, keep_default_na=False)
-    posts, rejected = rows_to_posts(raw.to_dict("records"))
+    posts, rejected = rows_to_posts(_read_rows(input_path))
     df = pd.DataFrame([p.model_dump(mode="python") for p in posts])
     if df.empty:
         return df, rejected
