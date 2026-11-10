@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from collections.abc import Iterable, Mapping
+from datetime import datetime
 from typing import Any
 
 from pydantic import ValidationError
@@ -38,8 +39,32 @@ def _pick(row: Mapping[str, Any], names: tuple[str, ...]) -> Any:
     return None
 
 
+def _flatten(row: Mapping[str, Any]) -> dict[str, Any]:
+    """Lift nested actor `author` fields to the top level (without overwriting)."""
+    flat = dict(row)
+    author = row.get("author")
+    if isinstance(author, Mapping):
+        for k, v in author.items():
+            flat.setdefault(k, v)
+        flat.setdefault("author_id", author.get("id"))
+    return flat
+
+
+def _parse_dt(value: Any) -> Any:
+    """Accept ISO strings or Twitter-style 'Tue Dec 10 07:00:30 +0000 2024'."""
+    if isinstance(value, str):
+        try:
+            return datetime.strptime(value, "%a %b %d %H:%M:%S %z %Y")
+        except ValueError:
+            return value
+    return value
+
+
 def normalise_row(row: Mapping[str, Any]) -> dict[str, Any]:
+    row = _flatten(row)
     out = {field: _pick(row, names) for field, names in ALIASES.items()}
+    if "created_at" in out:
+        out["created_at"] = _parse_dt(out["created_at"])
     return {k: v for k, v in out.items() if v is not None}
 
 
