@@ -86,6 +86,19 @@ def figures(d: pd.DataFrame, mode: str) -> list[go.Figure]:
     out.append(_layout(f1, t, "Views grow slower than followers", "Followers (log)",
                        "Views (log)", x=LOG, y=LOG))  # fmt: skip
 
+    # 1b. likes vs views
+    fl = go.Figure()
+    for a in AUTHORS:
+        g = d[d["author_handle"] == a]
+        fl.add_trace(go.Scatter(
+            x=g["impressions"], y=g["likes"], mode="markers", name=f"@{a}",
+            marker={"color": color[a], "symbol": sym[a], "size": 11,
+                    "line": {"color": t["surface"], "width": 2}},
+            hovertext=_hover(g), hoverinfo="text",
+        ))  # fmt: skip
+    out.append(_layout(fl, t, "Likes against views (each marker is one post)", "Views (log)",
+                       "Likes (log)", x=LOG, y=LOG))  # fmt: skip
+
     # 2. intent per post, by author
     f2 = go.Figure()
     for a in AUTHORS:
@@ -154,7 +167,8 @@ th {{ color:var(--muted); font-weight:600; }} .scroll {{ overflow-x:auto; }}
 <h1>Tiptree X post overview</h1>
 <p class="note">{n} eligible posts at least 7 days old, from {a} authors. Descriptive only: this is
 far below the plan's gate of 20 posts from 10 authors, so none of this is a lift estimate.</p>
-<div id="c0" class="chart"></div><div id="c1" class="chart"></div><div id="c2" class="chart"></div>
+<div id="c0" class="chart"></div><div id="c1" class="chart"></div>
+<div id="c2" class="chart"></div><div id="c3" class="chart"></div>
 <h2 style="font-size:16px">All posts</h2><div class="scroll">{table(d)}</div>
 <script>
 const FIGS = {json.dumps(payload)};
