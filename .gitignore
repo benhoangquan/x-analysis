@@ -10,3 +10,7 @@ data/processed/*
 data/swipe_file/*
 data/gold/*
 !data/**/.gitkeep
+# Generated outputs (small reports are tracked)
+outputs/*
+!outputs/.gitkeep
+!outputs/reports/

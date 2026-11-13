@@ -1,4 +1,4 @@
-"""Static HTML overview of the labelled dataset: reports/overview.html (plotly via CDN).
+"""Static HTML overview of the labelled dataset: outputs/reports/overview.html (plotly via CDN).
 
 Categorical colours are fixed per author (never re-ranked) and validated with the dataviz
 skill's validate_palette script; marker shapes add a second encoding for colour-blind readers.
@@ -17,7 +17,7 @@ import plotly.graph_objects as go
 from src.metrics.baselines import fit_reach_model
 
 SRC = Path("data/processed/posts_labelled.parquet")
-OUT = Path("reports/overview.html")
+OUT = Path("outputs/reports/overview.html")
 PLOTLY = "https://cdn.plot.ly/plotly-2.35.2.min.js"
 
 AUTHORS = ["tiptreesystems", "weights_biases", "karpathy", "elicitorg"]  # fixed order = colour slot
@@ -185,7 +185,7 @@ draw(); mq.addEventListener("change", draw);
 def main() -> None:
     d = pd.read_parquet(SRC)
     d = d[d["eligible"] & d["mature"] & d["s_intent"].notna()]
-    OUT.parent.mkdir(exist_ok=True)
+    OUT.parent.mkdir(parents=True, exist_ok=True)
     OUT.write_text(page(d))
     print(f"{len(d)} posts -> {OUT}")
 

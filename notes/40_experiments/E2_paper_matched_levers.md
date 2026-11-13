@@ -1,0 +1,28 @@
+# E2: Figure plus contested claim on the same paper
+
+Status: draft
+Tests: H2 (wording in the project doc).
+
+## Pre-registration
+
+- **Data:** the [paper panel](../30_concepts/paper_panel.md): filter-passing, eligible, mature posts, at most 10 per author. H2 is about researcher intent, so the researcher filter applies.
+- **Arms:**
+  - T (artifact + hook): `visual_type = PAPER_FIGURE` and `hook_archetype = CONTESTED_CLAIM`. `PAPER_FIGURE` covers the benchmark tables and architecture figures H2 names, plus loss curves.
+  - C (plain summary): `visual_type = NONE` and the post mainly summarises the paper. The summary class comes from the milestone 3 taxonomy revision (likely `PAPER_ANNOUNCEMENT`). If the revision creates none, a Jev yes/no question, "Is this post mainly a summary of the paper's abstract?", is validated on the hand-label set instead.
+- **Strata:** paper.
+- **Primary test:** H2: stratified rate ratio of bookmarks per impression (`CR_bmk`), T vs C. Prediction > 1.
+- **Robustness (part of the decision):** the same test with strata of paper × follower tier. If its point estimate falls on the other side of 1 from the primary, the verdict is `inconclusive`.
+- **Secondary:** `S_intent`; the two main effects within paper, figure vs none (any hook) and contested claim vs summary (any visual); impressions ratio T vs C, since a per-impression rate can fall when a format earns more views; figure kind (table, architecture, curve) if labelled; the under-2k tier alone.
+- **Decision:** README verdict rule, with the robustness condition above.
+- **Feasibility gate:** at least 20 papers with both a T and a C post. In v0, T was 45 of 1,428 eligible mature posts (3%, Jev v1 labels, unvalidated). If the gate fails, the two main effects become the primary tests (each with its own verdict), decided from counts before any outcome is seen.
+- **Prerequisites:** paper panel (plan decision 29); milestone 3 labels at target; the summary class.
+- **Threats:**
+  - Posters choose their format. Accounts that post figures may have more engaged audiences; the paper × tier check and the role mix per arm (reported) address part of this.
+  - The arm definitions are only as good as the archetype and visual labels.
+  - Two posts on the same paper can differ in timing; first posts per arm are reported.
+
+## Amendments
+
+## Runs
+
+## Verdict

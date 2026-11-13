@@ -1,4 +1,4 @@
-"""MVP descriptive analysis on the small initial dataset. Writes reports/mvp-findings.md.
+"""MVP descriptive analysis on the small initial dataset. Writes outputs/reports/mvp-findings.md.
 
 This is deliberately descriptive: the plan's evidence gate (>=20 posts, >=10 authors per cell)
 is not met, so nothing here is a lift estimate or a recommendation backed by statistics.
@@ -201,9 +201,9 @@ def main() -> None:
     df = df.drop_duplicates("post_id")
     OUT_PARQUET.parent.mkdir(parents=True, exist_ok=True)
     df.to_parquet(OUT_PARQUET, index=False)
-    Path("reports").mkdir(exist_ok=True)
-    Path("reports/mvp-findings.md").write_text(report(df))
-    Path("reports/baselines-sanity.md").write_text(sanity_report(df, model))
+    Path("outputs/reports").mkdir(parents=True, exist_ok=True)
+    Path("outputs/reports/mvp-findings.md").write_text(report(df))
+    Path("outputs/reports/baselines-sanity.md").write_text(sanity_report(df, model))
     print(f"{len(df)} posts -> {OUT_PARQUET}; reports written")
 
 

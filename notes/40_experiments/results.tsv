@@ -1,0 +1,20 @@
+date	commit	exp	test	data_version	label_version	estimate	ci_low	ci_high	n_posts	n_authors	n_strata	status	description
+2026-11-12	a3f6c66+dirty	E6	disc:direct_question	v0-2026-11-11	57113097f025	0.0000	-2.1972	2.1972	4	4		dry_run	log odds reply-leaning vs bookmark-leaning, 95% in script (99% col n/a)
+2026-11-12	a3f6c66+dirty	E6	disc:do_you_know	v0-2026-11-11	57113097f025	0.0000	-2.1972	2.1972	4	4		dry_run	log odds reply-leaning vs bookmark-leaning, 95% in script (99% col n/a)
+2026-11-12	a3f6c66+dirty	E6	disc:curiosity_gap	v0-2026-11-11	57113097f025	0.0000	-2.1972	2.1972	4	4		dry_run	log odds reply-leaning vs bookmark-leaning, 95% in script (99% col n/a)
+2026-11-12	a3f6c66+dirty	E6	disc:first_person_singular	v0-2026-11-11	57113097f025	3.2189	2.1972	3.2189	4	4		dry_run	log odds reply-leaning vs bookmark-leaning, 95% in script (99% col n/a)
+2026-11-12	a3f6c66+dirty	E6	disc:first_person_plural	v0-2026-11-11	57113097f025	1.6094	-0.8473	3.2189	4	4		dry_run	log odds reply-leaning vs bookmark-leaning, 95% in script (99% col n/a)
+2026-11-12	a3f6c66+dirty	E6	disc:second_person	v0-2026-11-11	57113097f025	-1.6094	-3.2189	0.8473	4	4		dry_run	log odds reply-leaning vs bookmark-leaning, 95% in script (99% col n/a)
+2026-11-12	a3f6c66+dirty	E6	disc:paper_third_person	v0-2026-11-11	57113097f025	0.0000	-2.1972	2.1972	4	4		dry_run	log odds reply-leaning vs bookmark-leaning, 95% in script (99% col n/a)
+2026-11-12	a3f6c66+dirty	E6	disc:imperative_opener	v0-2026-11-11	57113097f025	0.0000	-2.1972	2.1972	4	4		dry_run	log odds reply-leaning vs bookmark-leaning, 95% in script (99% col n/a)
+2026-11-12	a3f6c66+dirty	E6	disc:hedges	v0-2026-11-11	57113097f025	0.0000	-2.1972	2.1972	4	4		dry_run	log odds reply-leaning vs bookmark-leaning, 95% in script (99% col n/a)
+2026-11-12	a3f6c66+dirty	E6	disc:has_number	v0-2026-11-11	57113097f025	0.0000	-2.1972	2.1972	4	4		dry_run	log odds reply-leaning vs bookmark-leaning, 95% in script (99% col n/a)
+2026-11-12	a3f6c66+dirty	E6	disc:has_emoji	v0-2026-11-11	57113097f025	1.6094	-0.8473	3.2189	4	4		dry_run	log odds reply-leaning vs bookmark-leaning, 95% in script (99% col n/a)
+2026-11-12	a3f6c66+dirty	E6	disc:has_link	v0-2026-11-11	57113097f025	-1.6094	-3.2189	0.8473	4	4		dry_run	log odds reply-leaning vs bookmark-leaning, 95% in script (99% col n/a)
+2026-11-12	a3f6c66+dirty	E6	shortlist	v0-2026-11-11	57113097f025	1.0000			9	9		dry_run	shortlist: first_person_singular
+2026-11-12	a3f6c66+dirty	E4	H4a	v0-2026-11-11	57113097f025	2.2499	2.2499	2.2499	49	46	1	dry_run	rule-proxy framing; replies include own thread replies; H4a on 49 filter-passing posts [gate failed]
+2026-11-12	a3f6c66+dirty	E4	H4b	v0-2026-11-11	57113097f025	0.9154	0.9154	0.9154	48	45	1	dry_run	rule-proxy framing; replies include own thread replies; H4b on 49 filter-passing posts [gate failed]
+2026-11-12	a3f6c66+dirty	E4	H4c	v0-2026-11-11	57113097f025	nan	nan	nan	38	36	0	dry_run	rule-proxy framing; replies include own thread replies; H4c on 49 filter-passing posts [gate failed]
+2026-11-12	a3f6c66+dirty	E4	NC-H4a	v0-2026-11-11	57113097f025	0.4445	0.4445	0.4445	49	46	1	dry_run	negative control for H4a: arms shuffled within strata
+2026-11-12	a3f6c66+dirty	E4	NC-H4b	v0-2026-11-11	57113097f025	1.0924	1.0924	1.0924	48	45	1	dry_run	negative control for H4b: arms shuffled within strata
+2026-11-12	a3f6c66+dirty	E4	NC-H4c	v0-2026-11-11	57113097f025	nan	nan	nan	38	36	0	dry_run	negative control for H4c: arms shuffled within strata

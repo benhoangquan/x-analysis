@@ -13,7 +13,7 @@ import pandas as pd
 
 GOLD = Path("data/gold/hand_labels.csv")
 LABELS = Path("data/processed/labels.parquet")
-REPORT = Path("reports/label-agreement.md")
+REPORT = Path("outputs/reports/label-agreement.md")
 BARS = {"hook_archetype": 0.7, "visual_type": 0.8, "rigor_within_1": 0.85}
 
 
@@ -68,7 +68,7 @@ def main() -> None:
     gold = pd.read_csv(GOLD, dtype={"post_id": str})
     gold = gold.dropna(subset=["hook_archetype", "technical_rigor_score"])
     labels = pd.read_parquet(LABELS)
-    REPORT.parent.mkdir(exist_ok=True)
+    REPORT.parent.mkdir(parents=True, exist_ok=True)
     REPORT.write_text(report(gold, labels))
     print(REPORT.read_text())
 
