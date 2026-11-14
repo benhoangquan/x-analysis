@@ -6,7 +6,7 @@ Hypothesis tests for the claims in [../10_project_doc.md](../10_project_doc.md).
 
 | ID | Tests | Data | New inputs | Status |
 |---|---|---|---|---|
-| [E1](E1_poster_role.md) | H1: reach vs intent by poster role | paper panel | `poster_role` label | draft |
+| [E1](E1_poster_role.md) | H1: reach vs intent by poster credentials | paper panel | `poster_role` label | draft |
 | [E2](E2_paper_matched_levers.md) | H2: figure plus contested claim, same paper | paper panel | summary class from the taxonomy revision | draft |
 | [E3](E3_decision_model.md) | H3: controllable features predict top-half posts | paper-linked posts | paper metadata, scikit-learn | draft |
 | [E4](E4_framing.md) | H4: question vs claim vs curiosity gap | roster | `framing` label | draft |
@@ -67,7 +67,7 @@ A test gets a verdict only with at least 20 posts per arm, 10 distinct authors p
 
 ## Verdict rule
 
-H1–H4 have nine primary tests between them, so verdicts use 99% intervals; 95% intervals are reported alongside. The smallest effect worth changing how Martin writes is a rate ratio of 1.2 (0.83 in the other direction).
+H1–H4 have eight primary tests between them, so verdicts use 99% intervals; 95% intervals are reported alongside. The smallest effect worth changing how Martin writes is a rate ratio of 1.2 (0.83 in the other direction).
 
 | Verdict | Directional prediction (RR > 1) | Null prediction ("no lift") |
 |---|---|---|
@@ -88,7 +88,7 @@ Other ledger statuses: `insufficient` (evidence gate failed), `exploratory` (E5,
 | `date` | YYYY-MM-DD |
 | `commit` | 7-character hash of the code that ran, from a clean tree |
 | `exp` | E1–E6 |
-| `test` | H1a, H1b-A, H4c, NC (negative control), … |
+| `test` | H1a, H1b-O, H4c, NC (negative control), … |
 | `data_version` | collection snapshot, e.g. `v0-2026-11-11` |
 | `label_version` | label hash, or `-` |
 | `estimate` | rate ratio (ΔAUC for E3, share for E5) |

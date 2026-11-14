@@ -1,33 +1,36 @@
-# E1: Poster role, reach vs intent
+# E1: Poster credentials, reach vs intent
 
 Status: draft
-Tests: H1 (wording in the project doc). "Poster tier" is read as [poster role](../30_concepts/poster_role.md) (plan decision 30).
+Tests: H1 (wording in the project doc). "Poster tier" is [poster role](../30_concepts/poster_role.md): original researcher, credentialed researcher, or neither (plan decision 30; classes redefined 2026-11-14).
 
 ## Pre-registration
 
-- **Data:** the [paper panel](../30_concepts/paper_panel.md): eligible, mature posts that link a panel paper, at most 10 per author. The researcher filter is not applied (plan decision 31), because hype explainers write for the general public; the share of filter-passing posts is reported per role.
-- **Arms:** `poster_role` per post: `PAPER_AUTHOR`, `NEUTRAL_CURATOR`, `HYPE_EXPLAINER`. `COMMENTATOR` posts are described, not tested.
+- **Data:** the [paper panel](../30_concepts/paper_panel.md): eligible, mature posts that link a panel paper, at most 10 per author. The researcher filter is not applied (plan decision 31), because non-researchers write for the general public; the share of filter-passing posts is reported per role.
+- **Arms:** `poster_role` per post: `ORIGINAL_RESEARCHER`, `CREDENTIALED_RESEARCHER`, `NON_RESEARCHER`. H1's "hype explainers" are the `NON_RESEARCHER` arm.
 - **Strata:** paper. Every comparison holds the paper constant.
 - **Primary tests:**
 
   | Test | Measure | Comparison | Prediction |
   |---|---|---|---|
-  | H1a | impressions: geometric-mean ratio of within-paper impressions | `HYPE_EXPLAINER` vs `PAPER_AUTHOR` ∪ `NEUTRAL_CURATOR` | > 1 |
-  | H1b-A | `CR_bmk`: stratified rate ratio, bookmarks per impression | `PAPER_AUTHOR` vs `HYPE_EXPLAINER` | > 1 |
-  | H1b-C | `CR_bmk`: stratified rate ratio, bookmarks per impression | `NEUTRAL_CURATOR` vs `HYPE_EXPLAINER` | > 1 |
+  | H1a | impressions: geometric-mean ratio within paper | `NON_RESEARCHER` vs `ORIGINAL_RESEARCHER` and `CREDENTIALED_RESEARCHER` pooled | > 1 |
+  | H1b-O | `S_intent`: stratified rate ratio | `ORIGINAL_RESEARCHER` vs `NON_RESEARCHER` | > 1 |
+  | H1b-C | `S_intent`: stratified rate ratio | `CREDENTIALED_RESEARCHER` vs `NON_RESEARCHER` | > 1 |
 
-  H1a is not a rate, so its estimator is the mean over papers of the within-paper difference in mean log impressions, exponentiated, with a paper bootstrap. H1b uses the stratified rate ratio from the [README](README.md).
-- **Secondary:** likes (as H1a); `S_intent` (as H1b, weighted counts); follower-adjusted reach, with strata of paper × follower tier, to show how much of H1a is account size; posting order within the paper (first 24 hours vs later) by role; account-level roles.
-- **Decision:** each test gets its own verdict under the README rule, and the project doc lists all three. H1 holds as a whole only if all three are supported. If H1a holds on raw impressions but not within paper × tier, the finding reads "hype explainers are larger accounts", not "hype framing earns reach".
-- **Feasibility gate:** at least 20 papers holding both a `HYPE_EXPLAINER` and a `PAPER_AUTHOR` post (H1b-A), and 20 holding `HYPE_EXPLAINER` and `NEUTRAL_CURATOR` (H1b-C). If a gate fails, the panel grows once by another 300 papers (about $2) before the freeze; if it still fails, that test is pre-registered as `insufficient`.
-- **Prerequisites:** paper panel (plan decision 29); `poster_role` with Cohen's kappa ≥ 0.7 on 100 hand-labelled paper-linked posts and a 50-post check of author name matches (decision 30); milestone 2 metrics computed on panel posts.
+  `S_intent` is the AGENTS.md formula, replies counted as they are. H1a is not a rate: the estimator is the mean over papers of the within-paper difference in mean log impressions, exponentiated, with a paper bootstrap. H1b uses the stratified rate ratio from the [README](README.md), with the weighted count as numerator and impressions as exposure.
+- **Secondary:** likes (as H1a); `CR_bmk` (as H1b); `S_intent` for `ORIGINAL_RESEARCHER` vs `CREDENTIALED_RESEARCHER`; follower-adjusted reach, with strata of paper x follower tier, to show how much of H1a is account size; within `NON_RESEARCHER`, hype-flagged vs unflagged posts; posting order within the paper (first 24 hours vs later) by role.
+- **Decision:** each test gets its own verdict under the README rule, and the project doc lists all three. H1 holds as a whole only if all three are supported. If H1a holds on raw impressions but not within paper x tier, the finding reads "non-researchers are larger accounts", not "non-researcher framing earns reach".
+- **Feasibility gate:** at least 20 papers holding both a `NON_RESEARCHER` and an `ORIGINAL_RESEARCHER` post (H1b-O), and 20 holding `NON_RESEARCHER` and `CREDENTIALED_RESEARCHER` (H1b-C). If a gate fails, the panel grows once by another 300 papers (about $2) before the freeze; if it still fails, that test is pre-registered as `insufficient`.
+- **Prerequisites:** paper panel (plan decision 29); `poster_role` with Cohen's kappa >= 0.7 on 100 hand-labelled paper-linked posts and a 50-post check of author name matches (decision 30); Ben's confirmation of the credential rule; milestone 2 metrics computed on panel posts.
 - **Threats:**
-  - Hype explainers are mostly large accounts, so raw reach is confounded with followers by design. The paper × tier secondary measures how much.
+  - Non-researchers are mostly large accounts, so raw reach is confounded with followers by design. The paper x tier secondary measures how much.
+  - Credentials are matched by name and bio; matching errors move accounts between the two researcher classes. 50 matches are spot-checked.
   - Panel papers are ones researchers link, kept only when several accounts posted them. Results describe shared papers, not arXiv at large.
-  - Authors often post first and explainers later; the first post may take the attention. The posting-order secondary checks this.
-  - Bookmark rates differ by audience. That difference is part of what H1 claims, so it is not adjusted away.
+  - Authors often post first and others later; the first post may take the attention. The posting-order secondary checks this.
+  - Bookmark and reply rates differ by audience. That difference is part of what H1 claims, so it is not adjusted away.
 
 ## Amendments
+
+- 2026-11-14 (draft, before freeze): roles redefined by credentials instead of hype or curation; primary measure changed from `CR_bmk` to `S_intent` (Ben).
 
 ## Runs
 

@@ -10,9 +10,9 @@ Tests: H2 (wording in the project doc).
   - T (artifact + hook): `visual_type = PAPER_FIGURE` and `hook_archetype = CONTESTED_CLAIM`. `PAPER_FIGURE` covers the benchmark tables and architecture figures H2 names, plus loss curves.
   - C (plain summary): `visual_type = NONE` and the post mainly summarises the paper. The summary class comes from the milestone 3 taxonomy revision (likely `PAPER_ANNOUNCEMENT`). If the revision creates none, a Jev yes/no question, "Is this post mainly a summary of the paper's abstract?", is validated on the hand-label set instead.
 - **Strata:** paper.
-- **Primary test:** H2: stratified rate ratio of bookmarks per impression (`CR_bmk`), T vs C. Prediction > 1.
+- **Primary test:** H2: stratified rate ratio of `S_intent` (AGENTS.md formula, replies counted as they are) per impression, T vs C. Prediction > 1.
 - **Robustness (part of the decision):** the same test with strata of paper × follower tier. If its point estimate falls on the other side of 1 from the primary, the verdict is `inconclusive`.
-- **Secondary:** `S_intent`; the two main effects within paper, figure vs none (any hook) and contested claim vs summary (any visual); impressions ratio T vs C, since a per-impression rate can fall when a format earns more views; figure kind (table, architecture, curve) if labelled; the under-2k tier alone.
+- **Secondary:** `CR_bmk`; the two main effects within paper, figure vs none (any hook) and contested claim vs summary (any visual); impressions ratio T vs C, since a per-impression rate can fall when a format earns more views; figure kind (table, architecture, curve) if labelled; the under-2k tier alone.
 - **Decision:** README verdict rule, with the robustness condition above.
 - **Feasibility gate:** at least 20 papers with both a T and a C post. In v0, T was 45 of 1,428 eligible mature posts (3%, Jev v1 labels, unvalidated). If the gate fails, the two main effects become the primary tests (each with its own verdict), decided from counts before any outcome is seen.
 - **Prerequisites:** paper panel (plan decision 29); milestone 3 labels at target; the summary class.
@@ -22,6 +22,8 @@ Tests: H2 (wording in the project doc).
   - Two posts on the same paper can differ in timing; first posts per arm are reported.
 
 ## Amendments
+
+- 2026-11-14 (draft, before freeze): primary measure changed from `CR_bmk` to `S_intent` (Ben).
 
 ## Runs
 

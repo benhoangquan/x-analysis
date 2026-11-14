@@ -48,7 +48,7 @@ This document configures project standards, background context, data schemas, an
 - **Rates across posts:** a lift table cell's rate is pooled (total bookmarks / total impressions × 1000), with intervals from a bootstrap that resamples authors. A single post's rank uses `cr_bmk_shrunk` = (bookmarks + r) / (impressions + 1000) × 1000, where r is the tier's pooled rate.
 
 ### Hypothesis-Test Measures
-Descriptive measures for the hypothesis tests in `notes/40_experiments/` (plan decision 28). Ranking stays on `CR_bmk`.
+Measures for the hypothesis tests in `notes/40_experiments/` (plan decision 28). "High-Intent Score" in H1 and H2 is `S_intent` above, with replies counted as they are. Ranking stays on `CR_bmk`.
 - **Reply rate:** other people's replies per 1k views = (Replies − the author's own replies) / max(Impressions, 1) × 1000.
 - **Bookmarks per like:** pooled bookmarks / pooled likes.
 - **Top half (`top_half`):** `cr_bmk_shrunk` above its follower tier's median.
@@ -83,7 +83,7 @@ These enums are revised once in milestone 3, from Ben's notes on posts he labels
 - **Technical Rigor (`technical_rigor_score`):**
   - Discrete scale `1` (Hype/introductory) to `5` (Formal math, specific conference benchmarks like NeurIPS/ICLR/SWE-bench, concrete hyperparameter discussion). Anchors for 2–4 are in `src/enrichment/rubric.py`.
 - **Framing (`framing`):** `CURIOSITY_GAP`, `OPEN_QUESTION`, `DECLARATIVE_EMPIRICAL`, `DECLARATIVE_OTHER`. Definitions and precedence in [notes/30_concepts/framing.md](notes/30_concepts/framing.md).
-- **Poster role (`poster_role`, posts that link a paper):** `PAPER_AUTHOR`, `HYPE_EXPLAINER`, `COMMENTATOR`, `NEUTRAL_CURATOR`. Definitions and precedence in [notes/30_concepts/poster_role.md](notes/30_concepts/poster_role.md).
+- **Poster role (`poster_role`, posts that link a paper):** `ORIGINAL_RESEARCHER`, `CREDENTIALED_RESEARCHER`, `NON_RESEARCHER`. Definitions and precedence in [notes/30_concepts/poster_role.md](notes/30_concepts/poster_role.md).
 
 ---
 
