@@ -8,6 +8,7 @@ from typing import Any
 
 from pydantic import ValidationError
 
+from src.ingestion.panel import arxiv_ids
 from src.schema import Post
 
 ALIASES: dict[str, tuple[str, ...]] = {
@@ -34,6 +35,7 @@ ALIASES: dict[str, tuple[str, ...]] = {
     "media_count": ("media_count",),
     "media_kind": ("media_kind",),
     "media_urls": ("media_urls",),
+    "paper_id": ("paper_id",),
 }
 
 
@@ -67,7 +69,10 @@ def _parse_dt(value: Any) -> Any:
 
 
 def normalise_row(row: Mapping[str, Any]) -> dict[str, Any]:
+    ids = arxiv_ids(dict(row))
     row = _flatten(row)
+    if ids and "paper_id" not in row:
+        row["paper_id"] = ";".join(ids)
     if "media_count" not in row and isinstance(row.get("media"), list):
         row["media_count"] = len(row["media"])
     ext = (row.get("extendedEntities") or {}).get("media")

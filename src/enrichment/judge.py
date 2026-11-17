@@ -72,6 +72,10 @@ class JevJudge:
                 raise
         raise AssertionError("unreachable")
 
+    def ask(self, body: dict[str, Any]) -> dict[str, Any]:
+        """Send a text-only request built elsewhere (for example roster admission)."""
+        return self._call(body, with_image=False)
+
     def label(
         self, post_id: str, text: str, media_kind: str | None, image: bytes | None
     ) -> PostLabels:

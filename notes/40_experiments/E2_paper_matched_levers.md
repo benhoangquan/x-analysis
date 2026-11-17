@@ -23,6 +23,8 @@ Tests: H2 (wording in the project doc).
 
 ## Amendments
 
+- 2026-11-14 (draft, before freeze; plan decision 44): if the within-paper gate fails, which the panel makes likely (12 of 200 papers have 3 or more posters), the verdict is `insufficient`, H2 is reported as untestable from X search data at this budget, and the main-effects fallback is dropped. The figure-plus-contested-claim format enters the posting experiment as an untested arm.
+
 - 2026-11-14 (draft, before freeze): primary measure changed from `CR_bmk` to `S_intent` (Ben).
 
 ## Runs

@@ -63,7 +63,7 @@ Simplicity bar: a method more complex than this is used only where this one cann
 
 ## Evidence gate
 
-A test gets a verdict only with at least 20 posts per arm, 10 distinct authors per arm and 20 contributing strata. Otherwise its verdict is `insufficient`. This is the plan's minimum evidence plus a strata count.
+A test gets a verdict only with at least 20 posts per arm, 10 distinct authors per arm and 20 contributing strata. Otherwise its verdict is `insufficient`. This is the plan's minimum evidence plus a strata count. One exception: E1's cross-paper tests need 5 contributing strata (plan decision 50).
 
 ## Verdict rule
 

@@ -5,7 +5,7 @@ from src.enrichment import rubric
 from src.enrichment.classify import run
 from src.enrichment.evaluate import agreement, cohen_kappa
 from src.enrichment.judge import JevError, JevJudge
-from src.schema import HookArchetype, PostLabels, VisualType
+from src.schema import Framing, HookArchetype, PostLabels, VisualType
 
 
 def answers(researcher=0.9, rigor=(0.05, 0.05, 0.1, 0.7, 0.1), arch=None, visual=None, base=0):
@@ -120,3 +120,35 @@ def test_classify_treats_nan_media_kind_as_no_media():
 
     run(posts, J(), pd.DataFrame())
     assert seen == [None]
+
+
+def test_framing_questions_and_precedence():
+    body = rubric.build_request("hello", "jev-latest")
+    assert {f"framing_{f.value}" for f in rubric.FRAMING_QS} <= set(body["questions"])
+    top = rubric.pick_framing({"CURIOSITY_GAP": 0.6, "OPEN_QUESTION": 0.9})[0]
+    assert top is Framing.CURIOSITY_GAP
+    assert rubric.pick_framing({"OPEN_QUESTION": 0.2, "DECLARATIVE_EMPIRICAL": 0.8})[0] is (
+        Framing.DECLARATIVE_EMPIRICAL
+    )
+    assert rubric.pick_framing({"CURIOSITY_GAP": 0.1})[0] is Framing.DECLARATIVE_OTHER
+    a = answers() | {"framing_OPEN_QUESTION": {"type": "noul", "noul": 0.8}}
+    assert rubric.parse_answers("1", "v", a, None, False).framing is Framing.OPEN_QUESTION
+    assert rubric.parse_answers("1", "v", answers(), None, False).framing is None  # v1 cache
+
+
+def test_agreement_reports_framing_and_poster_role_when_present():
+    gold = pd.DataFrame({"post_id": ["1", "2", "3"], "split": "pilot",
+                         "is_researcher_post": ["yes", "no", "yes"],
+                         "hook_archetype": ["OTHER"] * 3, "visual_type": ["NONE"] * 3,
+                         "technical_rigor_score": [3, 2, 4],
+                         "framing": ["OPEN_QUESTION", "DECLARATIVE_OTHER", "CURIOSITY_GAP"],
+                         "poster_role": ["", "NON_RESEARCHER", ""]})  # fmt: skip
+    model = gold.drop(columns=["split"]).assign(
+        is_researcher_post=[True, False, True], error=None,
+        framing=["OPEN_QUESTION", "DECLARATIVE_OTHER", "DECLARATIVE_OTHER"],
+        poster_role=[None, "NON_RESEARCHER", None])  # fmt: skip
+    r = agreement(gold, model)
+    assert r["framing_n"] == 3 and r["poster_role_n"] == 1 and r["researcher_kappa"] == 1.0
+    from src.enrichment.evaluate import report
+
+    assert "## pilot" in report(gold, model)

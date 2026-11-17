@@ -12,7 +12,7 @@ from collections.abc import Mapping
 from pathlib import Path
 from typing import Any
 
-from src.schema import HookArchetype, PostLabels, VisualType
+from src.schema import Framing, HookArchetype, PostLabels, VisualType
 
 IMAGE_KEY = "attached_image"
 RESEARCHER_THRESHOLD = 0.5
@@ -28,21 +28,58 @@ PRECEDENCE = [
     HookArchetype.HOT_TAKE_CULTURE,
 ]
 
+# Rubric v2 (plan decisions 18, 30, 41): the filter judges the intended reader only.
 RESEARCHER_Q = {
     "type": "noul",
-    "instructions": (
-        "Is `post_text` written for people who publish, read, replicate or stress-test "
-        "peer-reviewed research or empirical machine learning research, as informed peers?"
-    ),
+    "instructions": "Is `post_text` written for people who read or write ML research papers?",
     "criteria": {
         "true": (
-            "The post engages with methodological detail, empirical verification, a contested "
-            "claim, or a synthesis of the literature."
+            "It is written for ML researchers or practitioners who follow papers: faculty, PhD "
+            "students, research scientists and engineers, or people sharing training or "
+            "fine-tuning detail. Product posts aimed at these readers count, however casual or "
+            "rigorous the post is."
         ),
         "false": (
-            "The post is high-level commentary, a broad tutorial, a company or product "
-            "announcement, a joke, or aimed at general enthusiasts or consumers."
+            "It is written for app developers, people shopping for AI tools, investors or the "
+            "general public, or it is not about machine learning."
         ),
+    },
+}
+
+# Framing: one Noul per class that can be true; code applies the precedence below and falls
+# back to DECLARATIVE_OTHER. Definitions: notes/30_concepts/framing.md.
+FRAMING_MIN_PROB = 0.5
+FRAMING_QS: dict[Framing, dict[str, Any]] = {
+    Framing.CURIOSITY_GAP: {
+        "type": "noul",
+        "instructions": "Does `post_text` hold back its main point so that the reader clicks or "
+        "expands to find it?",
+        "criteria": {
+            "true": "The post teases a payoff it does not state, as in \"Did you know…\", "
+            "\"Here's why…\" or \"Nobody is talking about…\".",
+            "false": "The post states its main point in the text, even if it links to more.",
+        },
+    },
+    Framing.OPEN_QUESTION: {
+        "type": "noul",
+        "instructions": "Does `post_text` ask readers an open technical question that the post "
+        "leaves unanswered?",
+        "criteria": {
+            "true": "The post asks a technical question, such as why a method behaves a certain "
+            "way, and invites answers.",
+            "false": "The post asks no question, or asks a rhetorical question and answers it "
+            "itself.",
+        },
+    },
+    Framing.DECLARATIVE_EMPIRICAL: {
+        "type": "noul",
+        "instructions": "Does `post_text` state a specific empirical result?",
+        "criteria": {
+            "true": "The post states a number, a comparison between methods or settings, a "
+            "benchmark score or an ablation outcome.",
+            "false": "The post announces, summarises or gives an opinion without a specific "
+            "measured result.",
+        },
     },
 }
 
@@ -137,6 +174,7 @@ def build_request(
 ) -> dict[str, Any]:
     state: dict[str, Any] = {"post_text": text}
     questions: dict[str, Any] = {"researcher": RESEARCHER_Q, "rigor": RIGOR_Q}
+    questions |= {f"framing_{f.value}": q for f, q in FRAMING_QS.items()}
     for arch, q in ARCHETYPE_QS.items():
         if arch is HookArchetype.VISUAL_MAP and image_ref is None:
             continue  # the question is about the image; code sets its probability to 0
@@ -169,6 +207,14 @@ def pick_archetype(probs: Mapping[str, float]) -> tuple[HookArchetype, float]:
     return HookArchetype.OTHER, 1 - best  # unreachable; keeps the function total
 
 
+def pick_framing(probs: Mapping[str, float]) -> tuple[Framing, float]:
+    """Truth table: the first class in precedence order at or above FRAMING_MIN_PROB."""
+    for f in FRAMING_QS:
+        if probs.get(f.value, 0.0) >= FRAMING_MIN_PROB:
+            return f, probs[f.value]
+    return Framing.DECLARATIVE_OTHER, 1 - max(probs.values(), default=0.0)
+
+
 def parse_answers(
     post_id: str,
     version: str,
@@ -185,6 +231,12 @@ def parse_answers(
     probs.setdefault(HookArchetype.VISUAL_MAP.value, 0.0)
     archetype, arch_conf = pick_archetype(probs)
     rigor, rigor_p = _rigor(answers["rigor"])
+    fprobs = {
+        f.value: float(answers[f"framing_{f.value}"]["noul"])
+        for f in FRAMING_QS
+        if f"framing_{f.value}" in answers
+    }
+    framing, _ = pick_framing(fprobs) if fprobs else (None, None)
 
     if media_kind is None:
         vis, src, vis_conf = VisualType.NONE, "rule", 1.0
@@ -207,6 +259,8 @@ def parse_answers(
         visual_source=src,
         technical_rigor_score=rigor,
         rigor_prob=rigor_p,
+        framing=framing,
+        framing_probs=fprobs,
         label_confidence=min(max(r, 1 - r), arch_conf, rigor_p, vis_conf),
         image_used=image_used,
     )

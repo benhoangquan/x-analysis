@@ -49,7 +49,7 @@ This document configures project standards, background context, data schemas, an
 
 ### Hypothesis-Test Measures
 Measures for the hypothesis tests in `notes/40_experiments/` (plan decision 28). "High-Intent Score" in H1 and H2 is `S_intent` above, with replies counted as they are. Ranking stays on `CR_bmk`.
-- **Reply rate:** other people's replies per 1k views = (Replies − the author's own replies) / max(Impressions, 1) × 1000.
+- **Reply rate:** Replies / max(Impressions, 1) × 1000, on posts that are not thread openers. Replies are not collected (plan decision 36), so the author's own replies cannot be subtracted; leaving out thread openers removes most of them.
 - **Bookmarks per like:** pooled bookmarks / pooled likes.
 - **Top half (`top_half`):** `cr_bmk_shrunk` above its follower tier's median.
 
@@ -92,8 +92,8 @@ These enums are revised once in milestone 3, from Ben's notes on posts he labels
 Each post carries a `cohort`:
 
 - **`OWN`:** `@tiptreesystems`, `@martincsweiss1`.
-- **`ROSTER`:** about 450 researcher accounts admitted by a Jev author check and sampled to tier quotas (150 under 2k, 150 at 2k–20k, 100 at 20k–200k, 50 over 200k). Includes the high-signal curators `@_akhaliq`, `@rasbt`, `@srush_nlp`, `@karpathy`, `@maximelabonne`. The handle list lives in `src/config.py`.
-- **`BENCHMARK`:** research-tool organisations, the comparison set for product posts: `@elicitorg`, `@huggingface`, `@arxiv`, `@weights_biases`.
+- **`ROSTER`:** researcher accounts admitted by a Jev author check, at most 150 per follower tier, organisations left out (plan decisions 52, 53). Includes the eight hand-picked accounts (the curators `@_akhaliq`, `@rasbt`, `@srush_nlp`, `@karpathy`, `@maximelabonne` and three seeds), flagged `hand_picked` (decision 55). The final handle list is `configs/roster_v1.csv`, written by `src/ingestion/roster.py --finalise` and read by `src/config.py`.
+- **`BENCHMARK`:** research-tool organisations, the comparison set for product posts: `@elicitorg`, `@huggingface`, `@arxiv`, `@wandb`.
 - **`PANEL`:** posts from accounts outside the roster that link a paper in the paper panel, for same-paper comparisons ([notes/30_concepts/paper_panel.md](notes/30_concepts/paper_panel.md)). Every paper-linked post, in any cohort, carries `paper_id`.
 
 **Follower tiers:** under 2k, 2k–20k, 20k–200k, over 200k. Advice for Tiptree starts from the under-2k tier.
@@ -107,6 +107,7 @@ Each post carries a `cohort`:
 - **Paper metadata:** arXiv and Semantic Scholar APIs (free, rate-limited) for categories, author lists, author h-index and venue.
 - **Visualization:** `plotly` for the static overview (`outputs/reports/overview.html`). The Streamlit dashboard is postponed until after the posting experiment.
 - **Collection:** Apify `apidojo/tweet-scraper`. Every query must expect at least 50 posts: combine authors with `OR` or widen the window. Read the plan's Data source section before any collection run.
+- **Apify budget:** new spend is capped at $10 from 2026-11-14 (`APIFY_BUDGET_USD`, plan decision 33). `src/ingestion/apify.py` refuses runs that could pass the cap and logs each run to `data/apify_spend.csv`. Raising the cap needs Ben's approval.
 - **Classifier:** Jev (`jev-latest`, TypeSafe AI), which reads text and PNG/JPEG images.
 - **Storage:** Parquet/CSV in `data/`: `raw/` holds actor output verbatim and is never edited (`raw/_v0/` holds superseded files that ingestion skips); `processed/` holds enriched tables; `swipe_file/` holds the curated posts; `gold/` holds Ben's hand labels.
 - **Layout:** the module map is in the plan's Architecture section.

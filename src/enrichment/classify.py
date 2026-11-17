@@ -52,15 +52,29 @@ def main() -> None:
     ap.add_argument("--model", default=DEFAULT_MODEL)
     ap.add_argument("--limit", type=int)
     ap.add_argument("--force", action="store_true")
+    ap.add_argument("--ids", type=Path, help="CSV with a post_id column: label only these")
+    ap.add_argument("--out", type=Path, help="write labels here, leaving the main cache alone")
     a = ap.parse_args()
     _load_dotenv()
     posts = pd.read_parquet(POSTS)
     posts = posts[posts["eligible"]]
+    if a.ids:  # e.g. the pilot check (decision 41): data/gold/pilot_sheet.csv
+        wanted = set(pd.read_csv(a.ids, dtype={"post_id": str})["post_id"])
+        posts = posts[posts["post_id"].astype(str).isin(wanted)]
     if a.limit:
         posts = posts.head(a.limit)
     judge = JevJudge(model=a.model)
-    labels = run(posts, judge, load_cache(), a.force)
-    labels["archetype_probs"] = labels["archetype_probs"].astype(str)
+    labels = run(posts, judge, load_cache(a.out) if a.out else load_cache(), a.force)
+    for col in ("archetype_probs", "framing_probs"):
+        if col in labels:
+            labels[col] = labels[col].astype(str)
+    if a.out:
+        a.out.parent.mkdir(parents=True, exist_ok=True)
+        labels.to_parquet(a.out, index=False)
+        failed = int(labels["error"].notna().sum())
+        print(f"labelled {len(labels) - failed} -> {a.out}, failed {failed}, "
+              f"input tokens {judge.input_tokens}")  # fmt: skip
+        return
     LABELS.parent.mkdir(parents=True, exist_ok=True)
     labels.to_parquet(LABELS, index=False)
     merged = pd.read_parquet(POSTS).merge(

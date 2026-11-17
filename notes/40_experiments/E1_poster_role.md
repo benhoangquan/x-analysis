@@ -19,7 +19,7 @@ Tests: H1 (wording in the project doc). "Poster tier" is [poster role](../30_con
   `S_intent` is the AGENTS.md formula, replies counted as they are. H1a is not a rate: the estimator is the mean over papers of the within-paper difference in mean log impressions, exponentiated, with a paper bootstrap. H1b uses the stratified rate ratio from the [README](README.md), with the weighted count as numerator and impressions as exposure.
 - **Secondary:** likes (as H1a); `CR_bmk` (as H1b); `S_intent` for `ORIGINAL_RESEARCHER` vs `CREDENTIALED_RESEARCHER`; follower-adjusted reach, with strata of paper x follower tier, to show how much of H1a is account size; within `NON_RESEARCHER`, hype-flagged vs unflagged posts; posting order within the paper (first 24 hours vs later) by role.
 - **Decision:** each test gets its own verdict under the README rule, and the project doc lists all three. H1 holds as a whole only if all three are supported. If H1a holds on raw impressions but not within paper x tier, the finding reads "non-researchers are larger accounts", not "non-researcher framing earns reach".
-- **Feasibility gate:** at least 20 papers holding both a `NON_RESEARCHER` and an `ORIGINAL_RESEARCHER` post (H1b-O), and 20 holding `NON_RESEARCHER` and `CREDENTIALED_RESEARCHER` (H1b-C). If a gate fails, the panel grows once by another 300 papers (about $2) before the freeze; if it still fails, that test is pre-registered as `insufficient`.
+- **Feasibility gate:** at least 20 papers holding both a `NON_RESEARCHER` and an `ORIGINAL_RESEARCHER` post (H1b-O), and 20 holding `NON_RESEARCHER` and `CREDENTIALED_RESEARCHER` (H1b-C). If a gate fails, the panel grows once, from the reserve, by up to 100 papers (about $0.75) before the freeze; if it still fails, that test is pre-registered as `insufficient`.
 - **Prerequisites:** paper panel (plan decision 29); `poster_role` with Cohen's kappa >= 0.7 on 100 hand-labelled paper-linked posts and a 50-post check of author name matches (decision 30); Ben's confirmation of the credential rule; milestone 2 metrics computed on panel posts.
 - **Threats:**
   - Non-researchers are mostly large accounts, so raw reach is confounded with followers by design. The paper x tier secondary measures how much.
@@ -30,6 +30,9 @@ Tests: H1 (wording in the project doc). "Poster tier" is [poster role](../30_con
 
 ## Amendments
 
+- 2026-11-14 (draft, before freeze; plan decision 43): the primary tests become cross-paper. H1a, H1b-O and H1b-C compare roles over all paper-linked posts (roster and panel), with strata of follower tier × arXiv primary category and an author bootstrap. The within-paper versions move to Secondary. Reason: the 200-paper panel had 6 papers with an author post and another poster, against a gate of 20. For the cross-paper tests the README gate's "20 contributing strata" becomes 5, since tier × category has at most about 30 cells; posts and authors per arm stay at 20 and 10 (accepted by Ben, plan decision 50).
+
+- 2026-11-14 (draft, before freeze): panel growth fallback cut to 100 papers to fit the $10 cap (plan decision 36).
 - 2026-11-14 (draft, before freeze): roles redefined by credentials instead of hype or curation; primary measure changed from `CR_bmk` to `S_intent` (Ben).
 
 ## Runs

@@ -11,7 +11,9 @@ from pydantic import BaseModel, Field
 class Cohort(StrEnum):
     OWN = "OWN"
     BENCHMARK = "BENCHMARK"
-    DISCOVERED = "DISCOVERED"
+    ROSTER = "ROSTER"
+    PANEL = "PANEL"
+    DISCOVERED = "DISCOVERED"  # v0 keyword discovery only (superseded by ROSTER)
 
 
 class HookArchetype(StrEnum):
@@ -31,6 +33,15 @@ class VisualType(StrEnum):
     CODE_TERMINAL = "CODE_TERMINAL"
     VIDEO_DEMO = "VIDEO_DEMO"
     OTHER_IMAGE = "OTHER_IMAGE"
+
+
+class Framing(StrEnum):
+    """notes/30_concepts/framing.md; precedence in this order."""
+
+    CURIOSITY_GAP = "CURIOSITY_GAP"
+    OPEN_QUESTION = "OPEN_QUESTION"
+    DECLARATIVE_EMPIRICAL = "DECLARATIVE_EMPIRICAL"
+    DECLARATIVE_OTHER = "DECLARATIVE_OTHER"
 
 
 class PostKind(StrEnum):
@@ -69,6 +80,7 @@ class Post(BaseModel):
     media_count: int = Field(default=0, ge=0)
     media_kind: str | None = None  # photo | video | animated_gif (first attachment)
     media_urls: list[str] = Field(default_factory=list)
+    paper_id: str | None = None  # arXiv IDs the post links to, ";"-joined (decision 29)
 
 
 class AccountSnapshot(BaseModel):
@@ -90,6 +102,8 @@ class PostLabels(BaseModel):
     visual_source: str | None = None  # "jev" | "rule"
     technical_rigor_score: int | None = Field(default=None, ge=1, le=5)
     rigor_prob: float | None = None
+    framing: Framing | None = None  # None on v1 labels, which did not ask
+    framing_probs: dict[str, float] = Field(default_factory=dict)
     label_confidence: float | None = None  # min over the label confidences
     label_rationale: str | None = None  # Jev returns probabilities, not rationales
     image_used: bool = False

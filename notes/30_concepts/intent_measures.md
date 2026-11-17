@@ -9,7 +9,7 @@ The hypotheses name their measures in words. This note maps each phrase onto the
 | "High-Intent Score" (H1, H2) | Primary: `S_intent` exactly as AGENTS.md and the plan define it: (3 x bookmarks + 2 x (quotes + reposts) + 2 x replies + likes) / max(impressions, 1). Secondary: `CR_bmk`. |
 | "technical replies" | Dropped. Replies enter `S_intent` as the plain reply count. |
 | "raw impressions and likes" (H1) | `impressions` and `likes` as collected |
-| "reply rate" (H4) | Reply rate: other people's replies per 1k views |
+| "reply rate" (H4) | Reply rate: replies per 1k views on posts that are not thread openers (plan decision 36) |
 | "bookmark-to-like ratio" (H4) | Bookmarks per like (pooled) |
 | "high-intent researcher saves" (H4) | `CR_bmk` on filter-passing posts |
 | "above-median post performance" (H3) | `top_half` |
