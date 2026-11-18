@@ -60,3 +60,5 @@ date	commit	exp	test	data_version	label_version	estimate	ci_low	ci_high	n_posts	
 2026-11-17	bbf6b51	E1	NC-H1a	v1-2026-11-17	cf3607061e63	0.8664	0.6295	1.4403	734	372	25	control	negative control for H1a: arms shuffled within strata
 2026-11-17	bbf6b51	E1	NC-H1b-O	v1-2026-11-17	cf3607061e63	1.0792	0.7868	1.5243	659	353	18	control	negative control for H1b-O: arms shuffled within strata
 2026-11-17	bbf6b51	E1	NC-H1b-C	v1-2026-11-17	cf3607061e63	1.0014	0.6519	2.0860	447	212	21	control	negative control for H1b-C: arms shuffled within strata
+2026-11-17	1e96a49	E2	H2	v1-2026-11-17	cf3607061e63	3.5247	0.8230	6.9021	201	142	6	insufficient	within-paper figure+contested vs summary (685 posts)
+2026-11-17	1e96a49	E2	NC-H2	v1-2026-11-17	cf3607061e63	0.9060	0.1479	3.0124	201	142	6	control	negative control for H2: arms shuffled within strata
