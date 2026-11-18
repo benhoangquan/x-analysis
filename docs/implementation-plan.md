@@ -342,7 +342,7 @@ The hypotheses (H1–H5) and open questions live in `notes/10_project_doc.md`. T
 
 Ideas kept for after the posting experiment. None of them feeds a recommendation in V0.
 
-- **Embedding map (Ben, 2026-11-14; built 2026-11-17).** Embed each post (text via `BAAI/bge-small-en-v1.5`, plus cached photos blended with CLIP `Qdrant/clip-ViT-B-32` -> 50D PCA), project to 2D with UMAP and t-SNE (`src/analysis/embed_map.py` -> `outputs/reports/embedding_map.html`), and colour points by `hook_archetype`, `framing`, `poster_role`, follower tier, `cr_bmk_shrunk`, and `visual_type`. Use it to see where high-intent posts sit, whether the label classes form regions, and where Tiptree's own posts fall. It is a picture for generating hypotheses only (`D9`); any pattern it shows is tested through a pre-registered experiment before it becomes advice.
+- **Embedding map (Ben, 2026-11-14; built 2026-11-17).** Embed each post (text via `BAAI/bge-small-en-v1.5`, plus cached photos blended with CLIP `Qdrant/clip-ViT-B-32` -> 50D PCA), project to 2D with UMAP and t-SNE (`src/analysis/embed_map.py` -> `outputs/reports/embedding_map.html`, plus the 1D embedding × reach skyline `outputs/reports/embedding_impression_map.html`), and colour points by `hook_archetype`, `framing`, `poster_role`, follower tier, `cr_bmk_shrunk`, and `visual_type`. Use it to see where high-intent posts sit, whether the label classes form regions, and where Tiptree's own posts fall. It is a picture for generating hypotheses only (`D9`); any pattern it shows is tested through a pre-registered experiment before it becomes advice.
 
 ## Out of scope for V0
 
