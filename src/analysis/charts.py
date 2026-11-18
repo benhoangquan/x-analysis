@@ -257,7 +257,9 @@ th {{ color:var(--muted); font-weight:600; }} .scroll {{ overflow-x:auto; }}
 </style></head><body>
 <h1>Tiptree X post overview</h1>
 <p class="note">{n} eligible mature posts across {a} authors. Jev rubric v2 labels used under
-Decision 60; lift cells show "insufficient data" below 20 posts / 10 authors.</p>
+Decision 60; lift cells show "insufficient data" below 20 posts / 10 authors.
+Explore the <a href="embedding_map.html">2D UMAP &amp; t-SNE post embedding map</a>
+(exploratory, Decision D9).</p>
 <div id="c0" class="chart"></div><div id="c1" class="chart"></div>
 <div id="c2" class="chart"></div><div id="c3" class="chart"></div>
 <h2>Tiptree scorecard (&lt;2k distribution)</h2><div class="scroll">{scorecard_html(d)}</div>

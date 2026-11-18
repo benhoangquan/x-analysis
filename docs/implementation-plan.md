@@ -22,7 +22,7 @@ Changes in revision 3:
 | 3 | Labels v2 | Done. Audience-only rubric, `framing`, `poster_role` + S2 lookup wired (`src/enrichment/classify.py`, `s2.py`, `judge.py`), `2,711` arXiv and `2,630` S2 paper records cached, and all `8,660` eligible mature v1 posts classified with `jev-latest` (`label_version=cf3607061e63`, `role_version=55945d80ebf0`, `0` failures). Manual pilot & held-out hand-labelling waived under decision 60. |
 | 4 | Analysis | Done. `E1`–`E4` & `E7` pre-registered and frozen (`869a795`), `E1`–`E7` executed on `v1-2026-11-17` into `notes/40_experiments/results.tsv` (all negative controls passed; `H1` refuted on `H1a`, `H2` `insufficient` per decision 44, `H3`/`H4`/`H5` `inconclusive`; `E5` and `E6` completed); `254` swipe-file posts written to `data/swipe_file/swipe_file.csv`; `outputs/reports/findings.md` generated via `report.py --trust-jev` (`<2k` `PAPER_FIGURE` `1.81x` recommendation + template). |
 | 5 | Posting experiment | Not started. Ready for Martin's agreement and cadence execution. |
-| 6 | Static overview | Done. `outputs/reports/overview.html` generated on all `8,660` v1 posts alongside `254`-row swipe file and `<2k` scorecard (`@tiptreesystems`, `@martincsweiss1`). Dashboard postponed. |
+| 6 | Static overview | Done. `outputs/reports/overview.html` generated on all `8,660` v1 posts alongside `254`-row swipe file, `<2k` scorecard (`@tiptreesystems`, `@martincsweiss1`), and cross-link to the exploratory `outputs/reports/embedding_map.html` (Decision D9). Dashboard postponed. |
 | 7 | Weekly refresh (optional) | Not started. |
 
 ## Decisions
@@ -247,6 +247,7 @@ src/
     report.py      # findings and templates, generated from the lift tables
     experiments.py # E1–E7 entry points: stratified rate ratio, negative control, summary block
     charts.py      # static overview page
+    embed_map.py   # multimodal UMAP + t-SNE post embedding map (After V0 / Decision D9)
 tests/  scripts/  configs/  notes/  outputs/reports/  docs/  data/{raw,processed,swipe_file,gold}/
 ```
 
@@ -341,7 +342,7 @@ The hypotheses (H1–H5) and open questions live in `notes/10_project_doc.md`. T
 
 Ideas kept for after the posting experiment. None of them feeds a recommendation in V0.
 
-- **Embedding map (Ben, 2026-11-14).** Embed each post (text, and images where present), project to 2D with UMAP and t-SNE, and colour points by `hook_archetype`, `framing`, `poster_role`, follower tier and `cr_bmk_shrunk`. Use it to see where high-intent posts sit, whether the label classes form regions, and where Tiptree's own posts fall. It is a picture for generating hypotheses; any pattern it shows is tested through a pre-registered experiment before it becomes advice.
+- **Embedding map (Ben, 2026-11-14; built 2026-11-17).** Embed each post (text via `BAAI/bge-small-en-v1.5`, plus cached photos blended with CLIP `Qdrant/clip-ViT-B-32` -> 50D PCA), project to 2D with UMAP and t-SNE (`src/analysis/embed_map.py` -> `outputs/reports/embedding_map.html`), and colour points by `hook_archetype`, `framing`, `poster_role`, follower tier, `cr_bmk_shrunk`, and `visual_type`. Use it to see where high-intent posts sit, whether the label classes form regions, and where Tiptree's own posts fall. It is a picture for generating hypotheses only (`D9`); any pattern it shows is tested through a pre-registered experiment before it becomes advice.
 
 ## Out of scope for V0
 
