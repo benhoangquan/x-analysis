@@ -1,6 +1,6 @@
 # E2: Figure plus contested claim on the same paper
 
-Status: draft
+Status: frozen (commit 2e18d34, 2026-11-17)
 Tests: H2 (wording in the project doc).
 
 ## Pre-registration

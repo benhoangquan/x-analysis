@@ -1,6 +1,6 @@
 # E7: Small-account breakout vs. polarization
 
-Status: draft
+Status: frozen (commit 2e18d34, 2026-11-17)
 Tests: H5 (wording in the project doc).
 
 ## Pre-registration

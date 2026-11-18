@@ -1,6 +1,6 @@
 # E3: Do controllable features predict top-half posts?
 
-Status: draft
+Status: frozen (commit 2e18d34, 2026-11-17)
 Tests: H3 (wording in the project doc).
 
 ## Pre-registration

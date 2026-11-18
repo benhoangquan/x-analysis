@@ -1,6 +1,6 @@
 # E1: Poster credentials, reach vs intent
 
-Status: draft
+Status: frozen (commit 2e18d34, 2026-11-17)
 Tests: H1 (wording in the project doc). "Poster tier" is [poster role](../30_concepts/poster_role.md): original researcher, credentialed researcher, or neither (plan decision 30; classes redefined 2026-11-14).
 
 ## Pre-registration

@@ -1,6 +1,6 @@
 # E4: Question, claim or curiosity gap
 
-Status: draft
+Status: frozen (commit 2e18d34, 2026-11-17)
 Tests: H4 (wording in the project doc).
 
 ## Pre-registration
