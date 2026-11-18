@@ -64,7 +64,7 @@ Measures for the hypothesis tests in `notes/40_experiments/` (plan decision 28).
 A post written for people who read or write ML research papers: faculty, PhD students, research scientists and engineers, and practitioners sharing training or fine-tuning detail. Product posts aimed at these readers count, including Tiptree's own. Posts written for app developers, AI-tool shoppers, investors or the general public do not. The filter judges the intended reader only; rigor is measured by `technical_rigor_score`. Findings use filter-passing posts only. The one exception is experiment E1 (plan decision 31), which produces no templates.
 
 ### Post Categorization Enums
-These enums are revised once in milestone 3, from Ben's notes on posts he labels `OTHER` (see the plan). Change them through that revision.
+These enums are revised once in milestone 3, from Ben's notes on posts he labels `OTHER` (see the plan; waived for V0 under plan decision 60). Change them through that revision.
 
 - **Hook Archetypes (`hook_archetype`):**
   - `CONTESTED_CLAIM`: Challenges prevailing wisdom or highlights empirical contradiction (e.g., LoRA rank saturation, tokenizer bottlenecks).
@@ -133,7 +133,10 @@ uv run python -m src.enrichment.classify --model jev-latest
 # Compare hand labels with Jev's labels
 uv run python -m src.enrichment.evaluate
 
-# Build the static overview page
+# Build swipe file, findings report, hypothesis ledger, and static overview page
+uv run python -m src.analysis.swipe
+uv run python -m src.analysis.report --trust-jev
+uv run python -m src.analysis.experiments E1 --data-version v1
 uv run python -m src.analysis.charts
 ```
 

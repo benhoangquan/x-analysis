@@ -6,13 +6,13 @@ Hypothesis tests for the claims in [../10_project_doc.md](../10_project_doc.md).
 
 | ID | Tests | Data | New inputs | Status |
 |---|---|---|---|---|
-| [E1](E1_poster_role.md) | H1: reach vs intent by poster credentials | paper panel | `poster_role` label | frozen (`2e18d34`) |
-| [E2](E2_paper_matched_levers.md) | H2: figure plus contested claim, same paper | paper panel | summary class from the taxonomy revision | frozen (`2e18d34`) |
-| [E3](E3_decision_model.md) | H3: controllable features predict top-half posts | paper-linked posts | paper metadata, scikit-learn | frozen (`2e18d34`) |
-| [E4](E4_framing.md) | H4: question vs claim vs curiosity gap | roster | `framing` label | frozen (`2e18d34`) |
-| [E5](E5_variance_shares.md) | Open question 1: variance share of five factors | paper panel | E1–E3 inputs | draft, exploratory |
-| [E6](E6_reply_vs_bookmark_language.md) | Open question 2: reply vs bookmark language | roster | rule features | draft, exploratory |
-| [E7](E7_small_account_breakout.md) | H5: small-account breakout vs polarization | roster + panel (`<2,500`) | Quote-to-Retweet ratio, sub-tiers | frozen (`2e18d34`) |
+| [E1](E1_poster_role.md) | H1: reach vs intent by poster credentials | paper panel | `poster_role` label | done |
+| [E2](E2_paper_matched_levers.md) | H2: figure plus contested claim, same paper | paper panel | summary class from the taxonomy revision | done |
+| [E3](E3_decision_model.md) | H3: controllable features predict top-half posts | paper-linked posts | paper metadata, scikit-learn | done |
+| [E4](E4_framing.md) | H4: question vs claim vs curiosity gap | roster | `framing` label | done |
+| [E5](E5_variance_shares.md) | Open question 1: variance share of five factors | paper panel | E1–E3 inputs | done, exploratory |
+| [E6](E6_reply_vs_bookmark_language.md) | Open question 2: reply vs bookmark language | roster | rule features | done, exploratory |
+| [E7](E7_small_account_breakout.md) | H5: small-account breakout vs polarization | roster + panel (`<2,500`) | Quote-to-Retweet ratio, sub-tiers | done |
 
 Status values: `draft` → `frozen` (pre-registration committed after Ben approves) → `running` → `done`.
 

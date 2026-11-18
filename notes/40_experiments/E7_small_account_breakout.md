@@ -1,6 +1,6 @@
 # E7: Small-account breakout vs. polarization
 
-Status: frozen (commit 2e18d34, 2026-11-17)
+Status: done
 Tests: H5 (wording in the project doc).
 
 ## Pre-registration
@@ -34,4 +34,12 @@ Tests: H5 (wording in the project doc).
 
 ## Runs
 
+- 2026-11-17, commit `99464bb`, data `v1-2026-11-17`, labels `cf3607061e63`: `<2,500`-follower breakout slice (`518` total posts; `59` posts in strict `G=21` [14 au] vs `U=38` [29 au] across `42` distinct authors and `3` sub-tiers `<500`, `500-999`, `1000-2499`). Log: `outputs/runs/E7_2026-11-17.log`.
+  - `H5a` (Quote/Retweet ratio `U` vs `G`): `1.2340` (`99% CI [0.1630, 4.9390]`, `n=59`, `au=42`, `strata=3`) → `inconclusive`; `NC-H5a`: `1.1853 [0.3173, 10.6487]` (`control`).
+  - `H5b` (Bookmark/Like ratio `G` vs `U`): `2.6708` (`99% CI [0.6722, 7.4126]`, `n=59`, `au=42`, `strata=3`) → `inconclusive`; `NC-H5b`: `0.4738 [0.2800, 2.1497]` (`control`).
+  - `H5c` (`CR_bmk` `G` vs `U`): `3.5577` (`99% CI [0.5270, 9.0379]`, `n=59`, `au=42`, `strata=3`) → `inconclusive`; `U cr_bmk = 1.57`, `zero_bmk_share_U = 0.34`; `NC-H5c`: `0.7646 [0.4143, 4.8697]` (`control`).
+  - Secondary (`all<2500`, `636` total, `70` arm posts, `44` au, `3` strata): `H5a-all = 1.1948 [0.1381, 4.4001]`, `H5b-all = 2.6600 [0.6840, 7.2334]`, `H5c-all = 3.5476 [0.4776, 9.0150]`.
+
 ## Verdict
+
+- **`H5` is inconclusive across `H5a`, `H5b`, and `H5c`:** Every comparison points in the hypothesized direction — `G` (`PAPER_FIGURE + CONTESTED_CLAIM`) earns `3.56x` the bookmark rate (`CR_bmk`) and `2.67x` the bookmark-to-like ratio of ungrounded hot takes (`U`, where `CR_bmk = 1.57` and `34%` earn zero bookmarks), while `U` shows `1.23x` Quote-to-Retweet polarization — and all three negative controls passed, but at `n = 59` (`42` authors) the 99% author-clustered bootstrap intervals span 1. Larger small-account samples are needed to test H5 at 99% confidence.

@@ -1,6 +1,6 @@
 # E3: Do controllable features predict top-half posts?
 
-Status: frozen (commit 2e18d34, 2026-11-17)
+Status: done
 Tests: H3 (wording in the project doc).
 
 ## Pre-registration
@@ -31,7 +31,14 @@ Tests: H3 (wording in the project doc).
 ## Amendments
 
 - 2026-11-17 (before freeze): Milestone 3 manual hand-labelling waived under plan decision 60 (`label_version=cf3607061e63`, `role_version=55945d80ebf0`). Outcome-blind feasibility counts on `v1-2026-11-17`: `1,119` filter-passing paper-linked posts (`ROSTER` cap 40 + `PANEL` cap 10) across `336` authors (`1,112` with Semantic Scholar `max_h_index`), clearing the `>=400` posts and `>=80` authors gate (`SEED = 20261112`).
+- 2026-11-17 (implementation bugfix, commit `f25c24b`): Coerced nullable boolean categorical columns (`has_code`, 13 nulls) to uniform strings in `_coerce_model_frame` and assigned permuted columns individually so `OneHotEncoder` does not raise `TypeError: Got ['bool', 'str']`; pre-registered features, CV folds, and decision rules unchanged.
 
 ## Runs
 
+- 2026-11-17, commit `f25c24b`, data `v1-2026-11-17`, labels `cf3607061e63`: `1,119` filter-passing paper-linked posts across `336` authors. Log: `outputs/runs/E3_2026-11-17.log`.
+  - `H3`: `delta_auc = 0.0180` (`M0 = 0.566`, `M1 = 0.584`, `perm99 = 0.0177`), `99% CI [-0.0238, 0.0624]` → `inconclusive`.
+  - Block importance (AUC drop on removal from M1): `drop:paper = 0.0207`, `drop:visual = -0.0046`, `drop:copy = 0.0143` (secondary).
+
 ## Verdict
+
+- **`inconclusive`:** Controllable features add `+0.0180` OOF AUC over follower, role, and author h-index controls (`M0 = 0.566` → `M1 = 0.584`, barely above the 99th-percentile permutation null `0.0177`), missing both the `ΔAUC ≥ 0.03` / `AUC(M1) ≥ 0.60` `supported` bar and the `CI upper < 0.02` `refuted` bar (`99% CI [-0.0238, 0.0624]`). Most of the small gain comes from the paper metadata block (`0.0207`) and copy features (`0.0143`).

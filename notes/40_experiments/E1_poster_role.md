@@ -1,6 +1,6 @@
 # E1: Poster credentials, reach vs intent
 
-Status: frozen (commit 2e18d34, 2026-11-17)
+Status: done
 Tests: H1 (wording in the project doc). "Poster tier" is [poster role](../30_concepts/poster_role.md): original researcher, credentialed researcher, or neither (plan decision 30; classes redefined 2026-11-14).
 
 ## Pre-registration
@@ -39,4 +39,12 @@ Tests: H1 (wording in the project doc). "Poster tier" is [poster role](../30_con
 
 ## Runs
 
+- 2026-11-17, commit `bbf6b51`, data `v1-2026-11-17`, labels `cf3607061e63` (`role_version=55945d80ebf0`): `734` capped paper-linked posts across `372` authors (`NON_RESEARCHER=372`, `ORIGINAL_RESEARCHER=287`, `CREDENTIALED_RESEARCHER=75`). Log: `outputs/runs/E1_2026-11-17.log`.
+  - `H1a` (impressions GM ratio, `NON_RESEARCHER` vs researchers, `tier_cat`, `n_strata=25`): `0.2048` (`99% CI [0.0854, 0.3510]`, `n=734`, `au=372`) → `refuted`; negative control `NC-H1a`: `0.8664 [0.6295, 1.4403]` (`control`).
+  - `H1b-O` (`S_intent` RR, `ORIGINAL_RESEARCHER` vs `NON_RESEARCHER`, `tier_cat`, `n_strata=18`): `0.9045` (`99% CI [0.6717, 1.3194]`, `n=659`, `au=353`) → `inconclusive`; `NC-H1b-O`: `1.0792 [0.7868, 1.5243]` (`control`).
+  - `H1b-C` (`S_intent` RR, `CREDENTIALED_RESEARCHER` vs `NON_RESEARCHER`, `tier_cat`, `n_strata=21`): `1.5720` (`99% CI [0.8319, 2.5358]`, `n=447`, `au=212`) → `inconclusive`; `NC-H1b-C`: `1.0014 [0.6519, 2.0860]` (`control`).
+  - Secondary within-paper (`first_paper_id`): `H1a-wp=0.0893 [0.0388, 0.2259]` (`37` strata), `H1b-O-wp=0.7711 [0.5568, 1.1681]` (`31` strata), `H1b-C-wp=0.7557 [0.3627, 1.5693]` (`13` strata, gate failed).
+
 ## Verdict
+
+- **`H1` is refuted overall:** `H1a` is cleanly **refuted** (`0.2048`, `99% CI [0.0854, 0.3510]`; within-paper `0.0893`), the opposite of the prediction — non-researchers earn roughly one-fifth the impressions of paper authors and credentialed researchers even within `tier × category` strata. Both high-intent rate comparisons (`H1b-O=0.9045`, `H1b-C=1.5720`) are `inconclusive` at 99% confidence. All three negative controls passed.

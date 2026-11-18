@@ -5,29 +5,24 @@ The method rules and milestone status live in [docs/implementation-plan.md](../d
 
 ## Current state
 
-As of 2026-11-17 (late).
+As of 2026-11-17 (complete through Milestones 4 & 6).
 
-- **Phase:** Milestones 1 and 2 complete; Milestone 3 blocked on `JEV_TOKEN` `HTTP 401` (`authentication_error` from `api.typesafe.ai`) before full Jev rubric v2 labelling (`8,660` eligible posts). All `v1` data, baselines, Decision 45 panel expansion, arXiv metadata, and Semantic Scholar metadata are in place (`$6.8684` of `$10.00` Apify spend). No hypothesis has been tested on v1 data yet.
-- **Method settled:** plan decisions 27–34 and 59–61 (`configs/roster_v1.csv` trusted directly without manual admission review; manual post hand-labelling waived in favor of Jev rubric v2 while keeping statistical cell gates; H5 and `E7` added). `E1`–`E7` stay `draft` until Jev labels allow outcome-blind feasibility counts and pre-registration freeze.
-- **Budget:** `$6.8684` spent of `$10.00` Apify cap (`data/apify_spend.csv`), including `$4.9744` of the `$5.00` roster cap and `$0.9768` of the `$1.50` panel cap.
-- **Collection & Baselines (Milestones 1–2):** `ROSTER` + `OWN` + `BENCHMARK` collected across Month 1 (`2026-10-08..11-07`: 206/206 accounts, 2,652 posts), Month 2 (`2026-09-08..10-08`: 206/206 accounts, 2,740 posts), and Month 3 (`2026-08-09..09-08`: 97/206 accounts, 2,137 posts before `$5.00` cap). Decision 45 added `115` multi-roster-poster papers (`315` seeds total; `78` with `>=3` posters, `40` with author + another poster). Ingestion (`mvp.py`, `v1-2026-11-17`) loaded `8,660` eligible mature posts (`1,780` filler dropped, `2,870` `in_author_cap`) across `407` authors into `data/processed/posts_enriched.parquet`; `ROSTER` reach model is reliable (`slope=0.59, intercept=1.84` on `8,315` posts / `192` authors); `10/10` spot-checked posts matched raw JSONL.
-- **Paper Metadata (Milestone 3 prep):** `2,711` arXiv rows (`data/processed/panel_papers.csv`) and `2,630` Semantic Scholar rows (`data/processed/paper_s2_meta.csv`: `348` venue-accepted, `2,612` with author h-index) fetched and cached.
-- **Blocking the runs:** `JEV_TOKEN` in `.env` returned `HTTP 401: authentication_error` on a 5-post `classify.py` smoke test (`cf3607061e63`). Needs a valid/refreshed `JEV_TOKEN` from Ben.
-- **Next:**
-  1. Ben refreshes `JEV_TOKEN` in `.env`.
-  2. Run `uv run python -m src.enrichment.classify --model jev-latest --workers 6` on all `8,660` eligible posts.
-  3. Compute outcome-blind feasibility counts, freeze `E1`–`E4` & `E7`, run `E1`–`E7` into `notes/40_experiments/results.tsv`, and build `swipe_file.csv`, `findings.md` (`--trust-jev`), and `overview.html`.
-- **Harness:** `src/analysis/experiments.py` implements `E1`–`E7`; `91/91` unit tests and `ruff check` pass.
+- **Phase:** Milestones 1–4 and 6 complete; ready for Milestone 5 (the posting experiment on `@tiptreesystems` and `@martincsweiss1`).
+- **Method settled:** plan decisions 27–34 and 59–61 (`configs/roster_v1.csv` trusted directly without manual admission review; manual post hand-labelling waived in favor of Jev rubric v2 directly while statistical cell gates stay enforced; H5 and `E7` added).
+- **Budget:** `$6.8684` spent of `$10.00` Apify cap (`data/apify_spend.csv`), including `$4.9744` of the `$5.00` roster cap and `$0.9768` of the `$1.50` panel cap. No further Apify spend is required for V0.
+- **Collection & Labelling (Milestones 1–3):** `v1-2026-11-17` holds `8,660` eligible mature posts (`1,780` filler dropped, `2,870` `in_author_cap`) across `407` authors, `2,711` arXiv rows, and `2,630` Semantic Scholar records. Jev rubric v2 classified all `8,660` posts cleanly (`label_version=cf3607061e63`, `role_version=55945d80ebf0`, `0` failures): `5,044` researcher-audience posts and `3,143` paper-linked `poster_role` labels (`NON_RESEARCHER=2,430`, `CREDENTIALED_RESEARCHER=413`, `ORIGINAL_RESEARCHER=300`).
+- **Analysis & Outputs (Milestones 4 & 6):** Pre-registered `E1`–`E4` & `E7` at commit `869a795`, ran `E1`–`E7` on `v1-2026-11-17` into `notes/40_experiments/results.tsv` (all negative controls passed), curated `254` posts in `data/swipe_file/swipe_file.csv`, and generated `outputs/reports/findings.md` (`--trust-jev`) and `outputs/reports/overview.html`.
+- **Next:** Agree posting cadence with Martin and run Milestone 5 (20 posts per arm across `@tiptreesystems` and `@martincsweiss1`, testing the `<2k` `PAPER_FIGURE` template plus untested `PAPER_FIGURE + CONTESTED_CLAIM` and `LACUNA_MAP` arms with UTM links).
 
 ## Hypotheses
 
 | ID | Status | Test | Latest evidence |
 |---|---|---|---|
-| H1 | untested | [E1](40_experiments/E1_poster_role.md) | Expanded 315-paper panel has `78` papers with `>=3` posters and `40` with an author post plus another poster (`33` in the `>=3`-poster set), clearing both cross-paper and within-paper panel thresholds pending Jev `poster_role` labels. |
-| H2 | untested | [E2](40_experiments/E2_paper_matched_levers.md) | Expanded 315-paper panel has `78` papers with `>=3` posters; figure+contested-claim vs summary counts wait on Jev rubric v2 labels. |
-| H3 | untested | [E3](40_experiments/E3_decision_model.md) | None. |
-| H4 | untested | [E4](40_experiments/E4_framing.md) | None. v0 had no curiosity-gap phrase among 122 researcher posts; H4c may be `insufficient`. |
-| H5 | untested | [E7](40_experiments/E7_small_account_breakout.md) | None. |
+| H1 | refuted | [E1](40_experiments/E1_poster_role.md) | `H1a` refuted in opposite direction: `NON_RESEARCHER` earns `0.205x` impressions (`99% CI [0.085, 0.351]`, `n=734`, `au=372`, `25` tier×cat strata; within-paper `0.089x [0.039, 0.226]`). `H1b-O=0.904 [0.672, 1.319]` and `H1b-C=1.572 [0.832, 2.536]` inconclusive (`bbf6b51`). |
+| H2 | insufficient | [E2](40_experiments/E2_paper_matched_levers.md) | Only `6` shared papers held `PAPER_FIGURE+CONTESTED_CLAIM` and `NONE+OTHER` against the 20-paper gate per decision 44 (`3.525x` exploratory RR, `99% CI [0.823, 6.902]`, `n=201`, `au=142`; `1e96a49`). Enters Milestone 5 as an untested arm. |
+| H3 | inconclusive | [E3](40_experiments/E3_decision_model.md) | `ΔAUC = +0.0180` (`M0=0.566` → `M1=0.584`, `99% CI [-0.0238, 0.0624]`, `perm99=0.0177`, `n=1,119`, `au=336`; `f25c24b`), missing the `ΔAUC ≥ 0.03` / `AUC ≥ 0.60` `supported` bar. |
+| H4 | inconclusive | [E4](40_experiments/E4_framing.md) | All 3 within-author tests cleared `>=20` strata and controls with 99% CIs spanning 1: `H4a=1.252 [0.899, 2.292]` (`n=1,436`, `36` au), `H4b=0.954 [0.601, 1.776]` (`n=355`, `25` au), `H4c=0.703 [0.271, 1.958]` (`n=357`, `22` au; `e594ea9`). |
+| H5 | inconclusive | [E7](40_experiments/E7_small_account_breakout.md) | All 3 comparisons point in hypothesized direction in `<2,500` breakout (`n=59`, `au=42`, `3` sub-tiers) with 99% CIs spanning 1: `H5a=1.234 [0.163, 4.939]`, `H5b=2.671 [0.672, 7.413]`, `H5c=3.558 [0.527, 9.038]` (`U cr_bmk=1.57`, `34%` zero-bmk; `99464bb`). |
 
 - **H1 (Poster Tier — Reach vs. Intent Split):** Hype explainers generate higher raw impressions and likes than paper authors or neutral curators, whereas paper authors and neutral curators achieve a higher High-Intent Score (bookmarks, quotes, and technical replies) per impression.
   - Measured as: within-paper impressions ratio (H1a) and within-paper `S_intent` rate ratios, original researcher vs non-researcher (H1b-O) and credentialed researcher vs non-researcher (H1b-C). "Poster tier" is [poster role](30_concepts/poster_role.md): original researcher, credentialed researcher, or neither. "Technical replies" is dropped; replies are counted as they are ([intent measures](30_concepts/intent_measures.md)).
@@ -42,13 +37,16 @@ As of 2026-11-17 (late).
 
 ## Open questions
 
-- When a post about a paper spreads, what exact share of variance is attributable to each of the 5 factors (paper content, paper authors, posting account tier, post visual, and post language/copy)? → [E5](40_experiments/E5_variance_shares.md)
-- Which specific linguistic patterns (e.g., direct questions, "do you know" hooks, first-person vs. third-person framing) separate high-reply posts from high-bookmark posts within the researcher audience? → [E6](40_experiments/E6_reply_vs_bookmark_language.md)
-- Is the proposed credential rule right (at least 3 papers in cs.LG, cs.CL, cs.CV or stat.ML on Semantic Scholar, or a bio that states a research position)? → Ben, before E1 is frozen
+- **Answered (`E5`, commit `45e155b`, `v1-2026-11-17`):** Across `107` papers with `>=3` posters (`551` posts, `221` authors), reach (`log_impressions`) and intent (`log_cr_bmk_shrunk`) split cleanly: `posting_account` explains `52.0%` of reach variance (`95% CI [0.371, 1.165]`) vs `5.9%` of bookmark rate variance (`[0.034, 0.215]`), whereas `visual` contributes `8.6%` (`[0.038, 0.171]`) to reach and `7.3%` (`[0.025, 0.150]`) to bookmark rate; latent paper identity (`paper_icc`) upper bound is `0.094` on reach vs `0.157` on bookmark rate (sparse `copy` and `paper_*` blocks had negative OOF Ridge $R^2$ shares). → [E5](40_experiments/E5_variance_shares.md)
+- **Answered (`E6`, commit `869a795`, `v1-2026-11-17`):** On `336` leaning posts across `121` `ROSTER` authors (`SEED=20261112`), `has_link` (`log_or=-2.00`, `99% CI [-3.45, -0.82]`) and `has_number` (`-1.73`, `[-3.27, -0.61]`) confirmed as bookmark-leaning signals in the confirmation half (`n=147`), while `first_person_singular` (`+0.54`, `[-0.61, 1.63]`) did not confirm at 99%. **Candidate hypothesis H6 for Ben:** posts including an external URL and concrete numbers earn higher bookmark-to-reply propensity among ML researchers. → [E6](40_experiments/E6_reply_vs_bookmark_language.md)
+- Credential rule (`>=3` ML papers on Semantic Scholar or a bio stating a research role): applied as specified under decisions 38 and 60 for V0 `poster_role` classification.
 
 ## Key findings
 
-None yet. Each entry will give the claim, its ledger row and its data version.
+- **Small-account figure lift (`v1-2026-11-17`, `cf3607061e63`, `outputs/reports/findings.md`):** In `<2k` (`n=654` capped researcher posts across tier), `visual_type=PAPER_FIGURE` earns **1.81x** higher bookmark rate (`95% CI [1.19, 2.70]`, pooled `CR_bmk=6.55` vs tier `3.62`; `n=98` posts, `65` authors) and **1.34x** in `2k-20k` (`[1.02, 1.87]`, `CR_bmk=6.78` vs `5.06`; `n=112`, `43` au), while plain text (`NONE`) falls below baseline (`0.66x` in `<2k`, `0.68x` in `2k-20k`). `framing=DECLARATIVE_OTHER` also clears 1.0x in `2k-20k` (`1.18x [1.02, 1.45]`, `n=576`, `94` au).
+- **Tiptree `<2k` baseline (`v1-2026-11-17`, `findings.md`):** Against `<2k` (`n=1,414`, median `cr_bmk_shrunk=3.28`, p75=`4.09`, p90=`6.79`), `@tiptreesystems` has median `cr_bmk_shrunk=3.31` (52nd percentile, `8` mature posts, median `122` views) and `@martincsweiss1` has `3.04` (33rd percentile, `19` mature posts, median `237` views).
+- **Non-researcher reach myth refuted (`results.tsv`, commit `bbf6b51`):** On `734` paper-linked posts holding follower tier × arXiv category constant, `NON_RESEARCHER` posts earn `0.205x` the impressions of researchers (`99% CI [0.085, 0.351]`, `refuted`; within-paper `0.089x`), directly refuting `H1a`.
+- **Links and numbers separate bookmarks from replies (`results.tsv`, commit `869a795`):** `has_link` and `has_number` confirmed at 99% confidence as markers of bookmark-leaning rather than reply-leaning researcher posts; reach is driven primarily by account size (`E5`: `52.0%`) while bookmark rate depends more on visuals (`7.3%`) and paper identity (`ICC=0.157`).
 
 ## Decisions
 

@@ -1,6 +1,6 @@
 # E2: Figure plus contested claim on the same paper
 
-Status: frozen (commit 2e18d34, 2026-11-17)
+Status: done
 Tests: H2 (wording in the project doc).
 
 ## Pre-registration
@@ -31,4 +31,10 @@ Tests: H2 (wording in the project doc).
 
 ## Runs
 
+- 2026-11-17, commit `1e96a49`, data `v1-2026-11-17`, labels `cf3607061e63`: `685` filter-passing capped paper-linked posts; `201` posts in `T` (`41`) + `C` (`160`) across `142` authors sharing `6` papers. Log: `outputs/runs/E2_2026-11-17.log`.
+  - `H2` (`S_intent` RR, within-paper `T` vs `C`): `3.5247` (`99% CI [0.8230, 6.9021]`, `n=201`, `au=142`, `n_strata=6`) → `insufficient` (20-paper gate failed).
+  - Negative control `NC-H2`: `0.9060` (`99% CI [0.1479, 3.0124]`) → `control`.
+
 ## Verdict
+
+- **`insufficient` (plan decision 44):** Only `6` papers hold both `PAPER_FIGURE + CONTESTED_CLAIM` (`T`) and plain-text `OTHER` (`C`) against the 20-paper gate (`3.52x` exploratory point estimate across those 6 papers, `99% CI [0.82, 6.90]`). Per decision 44, H2 is untestable at this budget from X search data, and the figure-plus-contested-claim format enters the Milestone 5 posting experiment as an untested arm (consistent with the descriptive `<2k` `PAPER_FIGURE` lift in `outputs/reports/findings.md`).

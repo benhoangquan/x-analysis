@@ -1,6 +1,6 @@
 # E4: Question, claim or curiosity gap
 
-Status: frozen (commit 2e18d34, 2026-11-17)
+Status: done
 Tests: H4 (wording in the project doc).
 
 ## Pre-registration
@@ -36,5 +36,11 @@ AGENTS.md §7 rules out recommending curiosity-gap hooks. Whatever H4c shows is 
 ## Runs
 
 - 2026-11-12, `dry_run` on v0 (rule-proxy framing, 38–49 posts, 0–1 strata): harness check only; see ledger and daily log. Not evidence.
+- 2026-11-17, commit `e594ea9`, data `v1-2026-11-17`, labels `cf3607061e63`: `1,537` filter-passing capped `ROSTER` posts across `191` authors (`1,486` non-openers). Log: `outputs/runs/E4_2026-11-17.log`.
+  - `H4a` (replies/impression, `OPEN_QUESTION` vs `DECLARATIVE_*`, non-openers, `36` author strata): `1.2518` (`99% CI [0.8995, 2.2922]`, `n=1,436`, `au=183`) → `inconclusive`; `NC-H4a`: `0.7579 [0.4426, 1.1602]` (`control`).
+  - `H4b` (bookmarks/like, `DECLARATIVE_EMPIRICAL` vs `OPEN_QUESTION`, `25` author strata): `0.9542` (`99% CI [0.6013, 1.7757]`, `n=355`, `au=100`) → `inconclusive`; `NC-H4b`: `1.1849 [0.8273, 1.8221]` (`control`).
+  - `H4c` (`CR_bmk`, `CURIOSITY_GAP` vs `DECLARATIVE_EMPIRICAL`, `22` author strata): `0.7028` (`99% CI [0.2712, 1.9581]`, `n=357`, `au=108`) → `inconclusive`; `NC-H4c`: `0.7841 [0.4366, 2.0535]` (`control`).
 
 ## Verdict
+
+- **`H4` is inconclusive across all three tests:** All three within-author tests cleared `>=20` contributing author strata and all negative controls passed, but the 99% author-clustered bootstrap intervals span 1 (`H4a=1.25 [0.90, 2.29]`, `H4b=0.95 [0.60, 1.78]`, `H4c=0.70 [0.27, 1.96]`). On `H4c`, the `0.70x` point estimate suggests no lift from curiosity-gap framing, though the upper bound (`1.96x`) does not clear the `<1.2x` null-confirmation threshold. Inconclusive means no large within-author effect was detected at these sample sizes.
