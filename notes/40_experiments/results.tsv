@@ -36,3 +36,9 @@ date	commit	exp	test	data_version	label_version	estimate	ci_low	ci_high	n_posts	
 2026-11-17	869a795	E6	confirm:has_link	v1-2026-11-17	cf3607061e63	-1.9962	-3.4469	-0.8158	147	61		confirmed	confirmation 99% log_or (disc=-1.85); confirmed
 2026-11-17	869a795	E6	confirm:first_person_singular	v1-2026-11-17	cf3607061e63	0.5389	-0.6083	1.6286	147	61		unconfirmed	confirmation 99% log_or (disc=1.41); not confirmed
 2026-11-17	869a795	E6	confirm:has_number	v1-2026-11-17	cf3607061e63	-1.7348	-3.2676	-0.6097	147	61		confirmed	confirmation 99% log_or (disc=-1.29); confirmed
+2026-11-17	e594ea9	E4	H4a	v1-2026-11-17	cf3607061e63	1.2518	0.8995	2.2922	1436	183	36	inconclusive	H4a on 1486 filter-passing posts
+2026-11-17	e594ea9	E4	H4b	v1-2026-11-17	cf3607061e63	0.9542	0.6013	1.7757	355	100	25	inconclusive	H4b on 1537 filter-passing posts
+2026-11-17	e594ea9	E4	H4c	v1-2026-11-17	cf3607061e63	0.7028	0.2712	1.9581	357	108	22	inconclusive	H4c on 1537 filter-passing posts
+2026-11-17	e594ea9	E4	NC-H4a	v1-2026-11-17	cf3607061e63	0.7579	0.4426	1.1602	1436	183	36	control	negative control for H4a: arms shuffled within strata
+2026-11-17	e594ea9	E4	NC-H4b	v1-2026-11-17	cf3607061e63	1.1849	0.8273	1.8221	355	100	25	control	negative control for H4b: arms shuffled within strata
+2026-11-17	e594ea9	E4	NC-H4c	v1-2026-11-17	cf3607061e63	0.7841	0.4366	2.0535	357	108	22	control	negative control for H4c: arms shuffled within strata
