@@ -62,3 +62,7 @@ date	commit	exp	test	data_version	label_version	estimate	ci_low	ci_high	n_posts	
 2026-11-17	bbf6b51	E1	NC-H1b-C	v1-2026-11-17	cf3607061e63	1.0014	0.6519	2.0860	447	212	21	control	negative control for H1b-C: arms shuffled within strata
 2026-11-17	1e96a49	E2	H2	v1-2026-11-17	cf3607061e63	3.5247	0.8230	6.9021	201	142	6	insufficient	within-paper figure+contested vs summary (685 posts)
 2026-11-17	1e96a49	E2	NC-H2	v1-2026-11-17	cf3607061e63	0.9060	0.1479	3.0124	201	142	6	control	negative control for H2: arms shuffled within strata
+2026-11-17	f25c24b	E3	H3	v1-2026-11-17	cf3607061e63	0.0180	-0.0238	0.0624	1119	336		inconclusive	delta_auc=0.0180 (M0=0.566, M1=0.584, perm99=0.0177)
+2026-11-17	f25c24b	E3	drop:paper	v1-2026-11-17	cf3607061e63	0.0207			1119	336		secondary	AUC drop when paper block removed from M1
+2026-11-17	f25c24b	E3	drop:visual	v1-2026-11-17	cf3607061e63	-0.0046			1119	336		secondary	AUC drop when visual block removed from M1
+2026-11-17	f25c24b	E3	drop:copy	v1-2026-11-17	cf3607061e63	0.0143			1119	336		secondary	AUC drop when copy block removed from M1
