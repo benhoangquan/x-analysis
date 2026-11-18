@@ -489,6 +489,17 @@ def run_e2(
 # ---------------------------------------------------------------- E3
 
 
+def _coerce_model_frame(
+    df: pd.DataFrame, num_cols: list[str], cat_cols: list[str]
+) -> pd.DataFrame:
+    out = pd.DataFrame(index=df.index)
+    for c in num_cols:
+        out[c] = pd.to_numeric(df[c], errors="coerce").astype("float64")
+    for c in cat_cols:
+        out[c] = df[c].map(lambda v: "missing" if pd.isna(v) else str(v)).astype("object")
+    return out
+
+
 def _auc_oof(
     df: pd.DataFrame,
     y: np.ndarray,
@@ -496,6 +507,7 @@ def _auc_oof(
     cat_cols: list[str],
     seeds: list[int],
 ) -> np.ndarray:
+    work = _coerce_model_frame(df, num_cols, cat_cols)
     transformers = []
     if num_cols:
         transformers.append(
@@ -516,13 +528,13 @@ def _auc_oof(
     for s in seeds:
         cv = StratifiedGroupKFold(n_splits=n_splits, shuffle=True, random_state=s)
         pred = np.zeros(len(df), dtype="float64")
-        for tr, va in cv.split(df, y, groups):
+        for tr, va in cv.split(work, y, groups):
             if len(np.unique(y[tr])) < 2:
                 pred[va] = float(np.mean(y[tr]))
                 continue
             pipe = Pipeline([("pre", pre), ("clf", LogisticRegression(C=1.0, max_iter=1000))])
-            pipe.fit(df.iloc[tr], y[tr])
-            pred[va] = pipe.predict_proba(df.iloc[va])[:, 1]
+            pipe.fit(work.iloc[tr], y[tr])
+            pred[va] = pipe.predict_proba(work.iloc[va])[:, 1]
         oof_sum += pred
     return oof_sum / len(seeds)
 
@@ -638,7 +650,8 @@ def run_e3(
         dp = d.copy()
         for _, grp in dp.groupby("follower_tier"):
             perm_idx = rng.permutation(grp.index.to_numpy())
-            dp.loc[grp.index, x_cols] = dp.loc[perm_idx, x_cols].to_numpy()
+            for col in x_cols:
+                dp.loc[grp.index, col] = dp.loc[perm_idx, col].to_numpy()
         oof_p = _auc_oof(dp, y, c_num + x_num, c_cat + x_cat, [SEED + 100 + i])
         perm_deltas.append(float(roc_auc_score(y, oof_p)) - auc_m0)
     null_p99 = float(np.nanpercentile(perm_deltas, 99)) if perm_deltas else float("nan")
@@ -737,6 +750,7 @@ def _oof_r2(
 ) -> float:
     if not (num_cols or cat_cols):
         return 0.0
+    work = _coerce_model_frame(df, num_cols, cat_cols)
     transformers = []
     if num_cols:
         transformers.append(
@@ -756,10 +770,10 @@ def _oof_r2(
         return 0.0
     cv = GroupKFold(n_splits=n_splits)
     pred = np.zeros(len(df), dtype="float64")
-    for tr, va in cv.split(df, y, groups):
+    for tr, va in cv.split(work, y, groups):
         pipe = Pipeline([("pre", pre), ("reg", Ridge(alpha=1.0))])
-        pipe.fit(df.iloc[tr], y[tr])
-        pred[va] = pipe.predict(df.iloc[va])
+        pipe.fit(work.iloc[tr], y[tr])
+        pred[va] = pipe.predict(work.iloc[va])
     ss_tot = float(np.sum((y - np.mean(y)) ** 2))
     if ss_tot <= 0:
         return 0.0

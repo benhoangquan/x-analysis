@@ -306,3 +306,43 @@ def test_e7_small_account_breakout_vs_polarization():
     assert by_test["H5c"]["status"] == "supported"
     assert "zero_bmk_share_U=1.00" in by_test["H5c"]["description"]
     assert all(r["_nc"][3] for r in out if r.get("_nc"))
+
+
+def test_e3_e5_coerce_nullable_boolean_categoricals(tmp_path):
+    from src.analysis.experiments import run_e3, run_e5
+
+    papers = tmp_path / "papers.csv"
+    pd.DataFrame({
+        "paper_id": [f"p{i}" for i in range(6)],
+        "primary_category": ["cs.LG"] * 6,
+        "has_code": pd.Series([True, False, None, True, False, None], dtype="object"),
+        "arxiv_v1": ["2026-09-01T00:00:00Z"] * 6,
+        "n_authors": [3] * 6,
+    }).to_csv(papers, index=False)
+    s2 = pd.DataFrame({
+        "paper_id": [f"p{i}" for i in range(6)],
+        "venue_accepted": pd.Series([True, None, False, True, False, None], dtype="object"),
+        "max_h_index": [10.0, 20.0, 30.0, 40.0, 50.0, 60.0],
+        "median_h_index": [5.0, 10.0, 15.0, 20.0, 25.0, 30.0],
+    })
+    rows = []
+    for i in range(30):
+        rows.append(dict(
+            post_id=str(i), author_handle=f"u_{i % 10}", cohort="PANEL",
+            eligible=True, mature=True, is_researcher_post=True,
+            follower_tier="<2k" if i % 2 == 0 else "2k-20k",
+            followers_at_collection=500.0 if i % 2 == 0 else 5000.0,
+            paper_id=f"p{i % 6}", created_at="2026-10-01T00:00:00Z",
+            impressions=1000.0, bookmarks=float((i % 7) + 1),
+            poster_role="ORIGINAL_RESEARCHER", visual_type="PAPER_FIGURE",
+            hook_archetype="CONTESTED_CLAIM", framing="DECLARATIVE_EMPIRICAL",
+            technical_rigor_score=4, char_len=140, thread_length=1, posted_hour_utc=12,
+            has_number=True, mentions_venue=False, hype_flags="", label_version="v2",
+        ))
+    df = pd.DataFrame(rows)
+    e3_out, _ = run_e3(
+        df, "dry_run", {"PANEL"}, s2_meta=s2, papers_path=papers, n_boot=10, n_perm=5
+    )
+    assert e3_out[0]["exp"] == "E3" and np.isfinite(e3_out[0]["estimate"])
+    e5_out, _ = run_e5(df, None, {"PANEL"}, s2_meta=s2, papers_path=papers, n_boot=10)
+    assert any(r["test"] == "log_cr_bmk_shrunk:paper_content" for r in e5_out)
