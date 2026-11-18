@@ -106,7 +106,7 @@ Each post carries a `cohort`:
 - **Language & Runtime:** Python 3.11+ (developed on 3.13), managed with `uv`. Secrets (`APIFY_TOKEN`, `JEV_TOKEN`) live in a git-ignored `.env`.
 - **Data & Computation:** `pandas`, `pydantic`, `numpy`; `scikit-learn` for experiments E3 and E5; `fastembed` (`BAAI/bge-small-en-v1.5`, `Qdrant/clip-ViT-B-32`) + `umap-learn` + `pillow` for the exploratory 2D post embedding map.
 - **Paper metadata:** arXiv and Semantic Scholar APIs (free, rate-limited) for categories, author lists, author h-index and venue.
-- **Visualization:** `plotly` for the static overview (`outputs/reports/overview.html`) and exploratory embedding maps (`outputs/reports/embedding_map.html`, `outputs/reports/embedding_impression_map.html`, decision `D9`). The Streamlit dashboard is postponed until after the posting experiment.
+- **Visualization:** `plotly` for the static overview (`outputs/reports/overview.html`) and exploratory embedding maps (`outputs/reports/embedding_map.html`, `outputs/reports/embedding_impression_map.html`, decision `D9`); `matplotlib` for publication figures (`outputs/reports/researcher_post_ablation.png` via `src/analysis/tweet_figure.py`). The Streamlit dashboard is postponed until after the posting experiment.
 - **Collection:** Apify `apidojo/tweet-scraper`. Every query must expect at least 50 posts: combine authors with `OR` or widen the window. Read the plan's Data source section before any collection run.
 - **Apify budget:** new spend is capped at $10 from 2026-11-14 (`APIFY_BUDGET_USD`, plan decision 33). `src/ingestion/apify.py` refuses runs that could pass the cap and logs each run to `data/apify_spend.csv`. Raising the cap needs Ben's approval.
 - **Classifier:** Jev (`jev-latest`, TypeSafe AI), which reads text and PNG/JPEG images.
@@ -139,6 +139,7 @@ uv run python -m src.analysis.report --trust-jev
 uv run python -m src.analysis.experiments E1 --data-version v1
 uv run python -m src.analysis.charts
 uv run python -m src.analysis.embed_map
+uv run python -m src.analysis.tweet_figure
 ```
 
 ### Tests and Lint

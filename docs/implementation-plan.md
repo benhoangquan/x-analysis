@@ -248,6 +248,7 @@ src/
     experiments.py # E1–E7 entry points: stratified rate ratio, negative control, summary block
     charts.py      # static overview page
     embed_map.py   # multimodal UMAP + t-SNE post embedding map (After V0 / Decision D9)
+    tweet_figure.py # 2-panel academic ablation figure -> outputs/reports/researcher_post_ablation.png
 tests/  scripts/  configs/  notes/  outputs/reports/  docs/  data/{raw,processed,swipe_file,gold}/
 ```
 
