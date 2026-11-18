@@ -31,7 +31,7 @@ This document configures project standards, background context, data schemas, an
    - Skip raw unsupervised PCA / K-means text clustering for V0.
    - Use deterministic metadata extraction and lightweight LLM-as-a-judge classifiers to label structural hook archetypes, visual media types, and technical depth.
 4. **Evidence Before Advice:**
-   - A recommendation needs a lift row with at least 20 posts from at least 10 authors, built on labels that met the hand-label agreement targets (plan, Enrichment). Thinner cells report "insufficient data".
+   - A recommendation needs a lift row with at least 20 posts from at least 10 authors, built on labels that met the hand-label agreement targets (plan, Enrichment; or Jev rubric v2 directly under plan decision 60). Thinner cells report "insufficient data".
 
 ---
 
@@ -51,6 +51,7 @@ This document configures project standards, background context, data schemas, an
 Measures for the hypothesis tests in `notes/40_experiments/` (plan decision 28). "High-Intent Score" in H1 and H2 is `S_intent` above, with replies counted as they are. Ranking stays on `CR_bmk`.
 - **Reply rate:** Replies / max(Impressions, 1) × 1000, on posts that are not thread openers. Replies are not collected (plan decision 36), so the author's own replies cannot be subtracted; leaving out thread openers removes most of them.
 - **Bookmarks per like:** pooled bookmarks / pooled likes.
+- **Quote-to-Retweet ratio:** pooled quotes / reposts (polarization relative to plain amplification, used in H5).
 - **Top half (`top_half`):** `cr_bmk_shrunk` above its follower tier's median.
 
 ### Analysis Rules
@@ -92,7 +93,7 @@ These enums are revised once in milestone 3, from Ben's notes on posts he labels
 Each post carries a `cohort`:
 
 - **`OWN`:** `@tiptreesystems`, `@martincsweiss1`.
-- **`ROSTER`:** researcher accounts admitted by a Jev author check, at most 150 per follower tier, organisations left out (plan decisions 52, 53). Includes the eight hand-picked accounts (the curators `@_akhaliq`, `@rasbt`, `@srush_nlp`, `@karpathy`, `@maximelabonne` and three seeds), flagged `hand_picked` (decision 55). The final handle list is `configs/roster_v1.csv`, written by `src/ingestion/roster.py --finalise` and read by `src/config.py`.
+- **`ROSTER`:** researcher accounts admitted by a Jev author check, at most 150 per follower tier, organisations left out (plan decisions 52, 53). Includes the eight hand-picked accounts (the curators `@_akhaliq`, `@rasbt`, `@srush_nlp`, `@karpathy`, `@maximelabonne` and three seeds), flagged `hand_picked` (decision 55). The final handle list is `configs/roster_v1.csv`, written by `src/ingestion/roster.py --finalise --trust-jev` (decision 59; or `--score-review --finalise`) and read by `src/config.py`.
 - **`BENCHMARK`:** research-tool organisations, the comparison set for product posts: `@elicitorg`, `@huggingface`, `@arxiv`, `@wandb`.
 - **`PANEL`:** posts from accounts outside the roster that link a paper in the paper panel, for same-paper comparisons ([notes/30_concepts/paper_panel.md](notes/30_concepts/paper_panel.md)). Every paper-linked post, in any cohort, carries `paper_id`.
 

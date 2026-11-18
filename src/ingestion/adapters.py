@@ -8,6 +8,7 @@ from typing import Any
 
 from pydantic import ValidationError
 
+from src.enrichment.rules import thread_cues
 from src.ingestion.panel import arxiv_ids
 from src.schema import Post
 
@@ -15,6 +16,8 @@ ALIASES: dict[str, tuple[str, ...]] = {
     "post_id": ("post_id", "id", "tweet_id"),
     "author_handle": ("author_handle", "userName", "username", "handle"),
     "author_id": ("author_id", "authorId"),
+    "author_name": ("author_name", "name"),
+    "author_bio": ("author_bio", "description"),
     "url": ("url", "twitterUrl"),
     "created_at": ("created_at", "createdAt"),
     "followers_at_collection": ("followers_at_collection", "followers", "followersCount"),
@@ -80,8 +83,11 @@ def normalise_row(row: Mapping[str, Any]) -> dict[str, Any]:
         row["media_kind"] = ext[0].get("type")
     if "media_urls" not in row and isinstance(row.get("media"), list):
         row["media_urls"] = [u for u in row["media"] if isinstance(u, str)]
-    if row.get("isQuote") is True and "post_kind" not in row:
-        row["post_kind"] = "quote"
+    if not row.get("post_kind"):
+        if row.get("isQuote") is True:
+            row["post_kind"] = "quote"
+        elif thread_cues(str(row.get("text") or row.get("fullText") or ""))[0]:
+            row["post_kind"] = "thread_opener"
     out = {field: _pick(row, names) for field, names in ALIASES.items()}
     if "created_at" in out:
         out["created_at"] = _parse_dt(out["created_at"])

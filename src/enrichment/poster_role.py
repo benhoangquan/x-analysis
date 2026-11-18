@@ -61,9 +61,19 @@ def decide(
     return NON
 
 
-def parse(answers: dict[str, Any], display_name: str, paper_authors: str) -> dict[str, Any]:
+def parse(
+    answers: dict[str, Any],
+    display_name: str,
+    paper_authors: str,
+    s2_papers: int | None = None,
+) -> dict[str, Any]:
     p_own = float(answers["own_work"]["noul"])
     p_bio = float(answers["bio"]["noul"]) if "bio" in answers else None
     match = is_paper_author(display_name, paper_authors)
-    return {"name_match": match, "p_own_work": p_own, "p_bio_research": p_bio,
-            "poster_role": decide(match, p_own, p_bio)}  # fmt: skip
+    return {
+        "name_match": match,
+        "p_own_work": p_own,
+        "p_bio_research": p_bio,
+        "s2_papers": s2_papers,
+        "poster_role": decide(match, p_own, p_bio, s2_papers),
+    }

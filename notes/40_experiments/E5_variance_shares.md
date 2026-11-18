@@ -27,6 +27,8 @@ Answers: open question 1 in the project doc.
 
 ## Amendments
 
+- 2026-11-17 (before freeze): Milestone 3 manual hand-labelling waived under plan decision 60 (`label_version=cf3607061e63`, `role_version=55945d80ebf0`). Outcome-blind feasibility counts on `v1-2026-11-17` papers with `>=3` distinct posters (`SEED = 20261112`): `107` papers, `551` posts, `221` authors unfiltered (`511` posts, `189` authors, `107` papers filter-passing).
+
 ## Runs
 
 ## Result

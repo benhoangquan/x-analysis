@@ -5,8 +5,10 @@ import pytest
 from src.metrics.baselines import (
     add_baselines,
     add_eligibility,
+    even_author_cap,
     fit_reach_model,
     follower_tier,
+    shrunk_bookmark_rate,
     trailing_baseline,
 )
 
@@ -70,3 +72,60 @@ def test_trailing_baseline_hand_computed():
     assert b.iloc[:3].isna().all()  # fewer than 3 prior posts
     assert b.iloc[3] == 200  # median(100, 300, 200)
     assert b.iloc[4] == 250  # prior 30 days: 100, 300, 200, 1000 -> (200 + 300) / 2
+
+
+def test_even_author_cap_selects_40_across_window():
+    rows = [
+        {"created_at": f"2026-09-{(i // 24) + 1:02d}T{i % 24:02d}:00:00Z"}
+        for i in range(100)
+    ]
+    rows.append({"created_at": "2026-10-01T00:00:00Z", "is_reply": True})  # ineligible excluded
+    df = add_eligibility(make(rows))
+    cap = even_author_cap(df)
+    assert int(cap.sum()) == 40
+    assert cap.iloc[0] and cap.iloc[99] and not cap.iloc[100]
+
+
+def test_shrunk_bookmark_rate_and_roster_trailing_baseline():
+    days = ["2026-09-20", "2026-09-25", "2026-10-01", "2026-10-05"]
+    rows = [
+        {
+            "cohort": "ROSTER",
+            "created_at": f"{d}T00:00:00Z",
+            "impressions": 1000,
+            "bookmarks": 10,
+        }
+        for d in days
+    ]
+    rows.append({
+        "cohort": "ROSTER",
+        "created_at": "2026-10-06T00:00:00Z",
+        "impressions": 100,
+        "bookmarks": 0,
+    })
+    out, _ = add_baselines(pd.DataFrame([{
+        "post_id": str(i), "author_handle": "r1", "followers_at_collection": 1000,
+        "collected_at": "2026-11-10T00:00:00Z", "is_reply": False, "is_retweet": False,
+        "in_reply_to_username": None, "r_out": 1.0, "s_intent": 0.01, "cr_bmk": 0.0, **r,
+    } for i, r in enumerate(rows)]))  # fmt: skip
+    assert pd.notna(out.loc[3, "baseline_ratio"])  # ROSTER trailing baseline computed
+    # Pooled tier r = 40 / 4100 * 1000; 0-bmk 100-view post is shrunk toward r
+    r_expected = 40.0 / 4100.0 * 1000.0
+    assert out.loc[4, "cr_bmk_shrunk"] == pytest.approx(r_expected / 1100.0 * 1000.0)
+    # shrunk_bookmark_rate works directly too
+    direct = shrunk_bookmark_rate(out, out["in_author_cap"])
+    assert direct.equals(out["cr_bmk_shrunk"])
+
+
+def test_fit_reach_model_prefers_roster_when_present():
+    roster = [
+        {"cohort": "ROSTER", "followers_at_collection": f, "impressions": round(2 * f**0.5)}
+        for f in (200, 2000, 20000, 200000)
+    ]
+    panel = [
+        {"cohort": "PANEL", "followers_at_collection": f, "impressions": round(10 * f**1.2)}
+        for f in (200, 2000, 20000, 200000)
+    ]
+    m = fit_reach_model(add_eligibility(make(roster + panel)))
+    assert m.slope == pytest.approx(0.5, abs=0.02)
+    assert m.n_posts == 4

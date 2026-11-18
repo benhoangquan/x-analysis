@@ -17,6 +17,8 @@ Answers: open question 2 in the project doc.
 
 ## Amendments
 
+- 2026-11-17 (before freeze): `SEED = 20261112` recorded for the 50/50 author discovery/confirmation split; Milestone 3 manual hand-labelling waived under plan decision 60 (`label_version=cf3607061e63`). Outcome-blind `v1-2026-11-17` input slice (`ROSTER` filter-passing, eligible, mature, `in_author_cap`): `1,537` posts across `191` authors.
+
 ## Runs
 
 - 2026-11-12, `dry_run` on v0 (9 leaning posts from 9 authors): pipeline runs end to end; no result. See ledger.

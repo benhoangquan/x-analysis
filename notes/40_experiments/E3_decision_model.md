@@ -30,6 +30,8 @@ Tests: H3 (wording in the project doc).
 
 ## Amendments
 
+- 2026-11-17 (before freeze): Milestone 3 manual hand-labelling waived under plan decision 60 (`label_version=cf3607061e63`, `role_version=55945d80ebf0`). Outcome-blind feasibility counts on `v1-2026-11-17`: `1,119` filter-passing paper-linked posts (`ROSTER` cap 40 + `PANEL` cap 10) across `336` authors (`1,112` with Semantic Scholar `max_h_index`), clearing the `>=400` posts and `>=80` authors gate (`SEED = 20261112`).
+
 ## Runs
 
 ## Verdict

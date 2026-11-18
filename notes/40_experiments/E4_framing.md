@@ -31,6 +31,8 @@ AGENTS.md §7 rules out recommending curiosity-gap hooks. Whatever H4c shows is 
 
 - 2026-11-14 (draft, before freeze): H4a leaves out thread openers instead of subtracting own replies, because replies are no longer collected (plan decision 36).
 
+- 2026-11-17 (before freeze): Milestone 3 manual hand-labelling waived under plan decision 60 (`label_version=cf3607061e63`). Outcome-blind feasibility counts on `v1-2026-11-17` (`1,537` filter-passing capped `ROSTER` posts across `191` authors; `1,486` non-thread-openers; `DECLARATIVE_OTHER=1,124`, `DECLARATIVE_EMPIRICAL=299`, `CURIOSITY_GAP=58`, `OPEN_QUESTION=56`): all three within-author tests clear `>=20` posts/arm, `>=10` authors/arm, and `>=20` contributing author strata (`H4a`: `56`/`1,380` posts, `37`/`182` authors, `36` strata; `H4b`: `299`/`56` posts, `88`/`37` authors, `25` strata; `H4c`: `58`/`299` posts, `42`/`88` authors, `22` strata).
+
 ## Runs
 
 - 2026-11-12, `dry_run` on v0 (rule-proxy framing, 38–49 posts, 0–1 strata): harness check only; see ledger and daily log. Not evidence.

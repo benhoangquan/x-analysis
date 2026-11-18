@@ -27,6 +27,8 @@ Tests: H2 (wording in the project doc).
 
 - 2026-11-14 (draft, before freeze): primary measure changed from `CR_bmk` to `S_intent` (Ben).
 
+- 2026-11-17 (before freeze): Milestone 3 manual hand-labelling waived under plan decision 60 (`label_version=cf3607061e63`). Outcome-blind feasibility counts on `v1-2026-11-17` (`685` filter-passing capped paper-linked posts across `336` authors and `506` papers): `T` (`PAPER_FIGURE` + `CONTESTED_CLAIM`) has `41` posts (`24` authors) and `C` (`NONE` + `OTHER`) has `160` posts (`119` authors), yielding `6` contributing `first_paper_id` strata (< `20` gate; `3` `paper_tier` strata). Per plan decision 44, `E2` stays within-paper and is frozen as-is (will record `insufficient` against the 20-paper gate).
+
 ## Runs
 
 ## Verdict

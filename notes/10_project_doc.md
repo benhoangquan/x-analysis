@@ -5,32 +5,29 @@ The method rules and milestone status live in [docs/implementation-plan.md](../d
 
 ## Current state
 
-As of 2026-11-14.
+As of 2026-11-17 (late).
 
-- **Phase:** pre-run review complete (decisions 27–58). Milestone 1 in progress; waiting on Ben's admission review before roster collection. Test batch, panel, own-paper search, admission, two borderline top-ups and a draft roster done on 2026-11-14 ($1.105 spent of $10). No hypothesis has been tested. The only data is v0 (2,073 posts, superseded), which shows feasibility only.
-- **Method settled:** plan decisions 27–34 cover the notes protocol, the hypothesis-test measures and verdict rule, the paper panel, the `framing` and `poster_role` labels, E1's scope, the new inputs, the $10 Apify cap and the audience-filter kappa target. E1–E6 stay `draft` until milestones 1–3 give their feasibility counts.
-- **Budget:** new Apify spend is capped at $10 and enforced in `src/ingestion/apify.py`; $1.105 spent (`data/apify_spend.csv`; the test and panel runs match Apify's bill); roster collection has its own $5 cap (decision 56). Collection fits the cap with a 90-day window and no replies (plan decision 36).
-- **Labelling:** a 40-post pilot sheet from v0 is with Ben (`data/gold/pilot_sheet.csv`, guide `docs/hand-labelling.md`).
-- **Test batch:** `OR` joins work, v0 had lost about 90% of older posts, the item G seeds are individual researchers, and `url:` search works but random papers have a median of 1 poster (plan, What the test batch showed).
-- **Paper panel:** collected ($0.188). Papers get few link posts (median 0 posters, 12 of 200 with 3 or more), so E1 and E2 cannot hold the paper constant at the planned scale. The actor pads thin queries with charged filler (67% of panel items). Plan, What the paper panel showed.
-- **Roster:** 426 candidates; Jev admitted 214 after two top-ups (127 borderline stay out, 85 rejected). Draft roster 200 (130 / 48 / 17 / 5 by tier, including the 8 hand-picked accounts, organisations out), waiting on Ben's blind review of 75 (`data/gold/admission_review.csv`). Posting is heavy-tailed: a few accounts post dozens of times a week, most rarely.
-- **Rubric v2:** researcher question, `framing` and `poster_role` written and tested, not run (decision 41); the Semantic Scholar paper count is not wired in.
-- **Blocking the tests:** Ben's admission review, then roster collection (milestone 1, collector ready); Ben's pilot labels, then the rubric v2 check and labelling (milestone 3).
+- **Phase:** Milestones 1 and 2 complete; Milestone 3 blocked on `JEV_TOKEN` `HTTP 401` (`authentication_error` from `api.typesafe.ai`) before full Jev rubric v2 labelling (`8,660` eligible posts). All `v1` data, baselines, Decision 45 panel expansion, arXiv metadata, and Semantic Scholar metadata are in place (`$6.8684` of `$10.00` Apify spend). No hypothesis has been tested on v1 data yet.
+- **Method settled:** plan decisions 27–34 and 59–61 (`configs/roster_v1.csv` trusted directly without manual admission review; manual post hand-labelling waived in favor of Jev rubric v2 while keeping statistical cell gates; H5 and `E7` added). `E1`–`E7` stay `draft` until Jev labels allow outcome-blind feasibility counts and pre-registration freeze.
+- **Budget:** `$6.8684` spent of `$10.00` Apify cap (`data/apify_spend.csv`), including `$4.9744` of the `$5.00` roster cap and `$0.9768` of the `$1.50` panel cap.
+- **Collection & Baselines (Milestones 1–2):** `ROSTER` + `OWN` + `BENCHMARK` collected across Month 1 (`2026-10-08..11-07`: 206/206 accounts, 2,652 posts), Month 2 (`2026-09-08..10-08`: 206/206 accounts, 2,740 posts), and Month 3 (`2026-08-09..09-08`: 97/206 accounts, 2,137 posts before `$5.00` cap). Decision 45 added `115` multi-roster-poster papers (`315` seeds total; `78` with `>=3` posters, `40` with author + another poster). Ingestion (`mvp.py`, `v1-2026-11-17`) loaded `8,660` eligible mature posts (`1,780` filler dropped, `2,870` `in_author_cap`) across `407` authors into `data/processed/posts_enriched.parquet`; `ROSTER` reach model is reliable (`slope=0.59, intercept=1.84` on `8,315` posts / `192` authors); `10/10` spot-checked posts matched raw JSONL.
+- **Paper Metadata (Milestone 3 prep):** `2,711` arXiv rows (`data/processed/panel_papers.csv`) and `2,630` Semantic Scholar rows (`data/processed/paper_s2_meta.csv`: `348` venue-accepted, `2,612` with author h-index) fetched and cached.
+- **Blocking the runs:** `JEV_TOKEN` in `.env` returned `HTTP 401: authentication_error` on a 5-post `classify.py` smoke test (`cf3607061e63`). Needs a valid/refreshed `JEV_TOKEN` from Ben.
 - **Next:**
-  1. Ben: admission review (`data/gold/admission_review.csv`) and pilot labels (`data/gold/pilot_sheet.csv`).
-  2. `roster.py --score-review --finalise`: if Ben confirms at least 43 of Jev's 50 admits, write `configs/roster_v1.csv`; then `--collect-roster` (roster, own and benchmark accounts, $5 cap).
-  3. Pilot check: `classify --ids data/gold/pilot_sheet.csv --out data/processed/pilot_jev_labels.parquet`, then `evaluate --gold data/gold/pilot_labels.csv --labels …`.
-  3. Add `framing` and `poster_role` to the rubric and the Jev call; extend `experiments.py` to E1, E2, E3 and E5.
-- **Harness:** `src/analysis/experiments.py` runs E4 and E6; dry runs on v0 (2026-11-12) passed as code checks. v0 gives 0–1 within-author strata for E4, so the real run needs the roster.
+  1. Ben refreshes `JEV_TOKEN` in `.env`.
+  2. Run `uv run python -m src.enrichment.classify --model jev-latest --workers 6` on all `8,660` eligible posts.
+  3. Compute outcome-blind feasibility counts, freeze `E1`–`E4` & `E7`, run `E1`–`E7` into `notes/40_experiments/results.tsv`, and build `swipe_file.csv`, `findings.md` (`--trust-jev`), and `overview.html`.
+- **Harness:** `src/analysis/experiments.py` implements `E1`–`E7`; `91/91` unit tests and `ruff check` pass.
 
 ## Hypotheses
 
 | ID | Status | Test | Latest evidence |
 |---|---|---|---|
-| H1 | untested | [E1](40_experiments/E1_poster_role.md) | Feasibility: the 200-paper panel has 12 papers with 3 or more posters and 6 with an author post plus another poster; the within-paper gate needs 20. Design question in pre-run review round 3. |
-| H2 | untested | [E2](40_experiments/E2_paper_matched_levers.md) | Feasibility: 12 of 200 panel papers have 3 or more posters; matched figure-vs-summary pairs on 20 papers look out of reach. Design question in round 3. |
+| H1 | untested | [E1](40_experiments/E1_poster_role.md) | Expanded 315-paper panel has `78` papers with `>=3` posters and `40` with an author post plus another poster (`33` in the `>=3`-poster set), clearing both cross-paper and within-paper panel thresholds pending Jev `poster_role` labels. |
+| H2 | untested | [E2](40_experiments/E2_paper_matched_levers.md) | Expanded 315-paper panel has `78` papers with `>=3` posters; figure+contested-claim vs summary counts wait on Jev rubric v2 labels. |
 | H3 | untested | [E3](40_experiments/E3_decision_model.md) | None. |
 | H4 | untested | [E4](40_experiments/E4_framing.md) | None. v0 had no curiosity-gap phrase among 122 researcher posts; H4c may be `insufficient`. |
+| H5 | untested | [E7](40_experiments/E7_small_account_breakout.md) | None. |
 
 - **H1 (Poster Tier — Reach vs. Intent Split):** Hype explainers generate higher raw impressions and likes than paper authors or neutral curators, whereas paper authors and neutral curators achieve a higher High-Intent Score (bookmarks, quotes, and technical replies) per impression.
   - Measured as: within-paper impressions ratio (H1a) and within-paper `S_intent` rate ratios, original researcher vs non-researcher (H1b-O) and credentialed researcher vs non-researcher (H1b-C). "Poster tier" is [poster role](30_concepts/poster_role.md): original researcher, credentialed researcher, or neither. "Technical replies" is dropped; replies are counted as they are ([intent measures](30_concepts/intent_measures.md)).
@@ -40,6 +37,8 @@ As of 2026-11-14.
   - Measured as: ΔAUC of a logistic model with controllable features over a controls-only model, folds grouped by author; supported at ΔAUC ≥ 0.03 with AUC ≥ 0.60.
 - **H4 (Linguistic Framing & Interaction Type):** Posts using open-ended technical questions generate a higher reply rate than declarative summaries, whereas declarative empirical claims generate a higher bookmark-to-like ratio—and generic curiosity-gap phrasing (e.g., "Do you know...") fails to lift high-intent researcher saves.
   - Measured as: within-author rate ratios for replies per view on non-thread posts (H4a), bookmarks per like (H4b), and `CR_bmk` for curiosity gap vs empirical claim, with a null prediction (H4c). Classes defined in [framing](30_concepts/framing.md).
+- **H5 (Small-Account Breakout vs. Polarization):** Among low-follower accounts (<2,500 followers) with >=200 impressions, high-residual breakout posts that pair a concrete empirical artifact (table/figure) with a contested claim maintain a low Quote-to-Retweet ratio and high Bookmark-to-Like ratio, whereas ungrounded hot takes exhibit high Quote-to-Retweet polarization and near-zero bookmarks.
+  - Measured as: stratified rate ratios across `<2,500` follower sub-tiers (`<500`, `500-999`, `1000-2499`) on breakout posts (`impressions >= 200`, `reach_vs_expected > 1.0`): Quote-to-Retweet ratio `U` vs `G` (H5a), Bookmark-to-Like ratio `G` vs `U` (H5b), and `CR_bmk` `G` vs `U` (H5c, alongside `U` zero-bookmark share), where `G` = `PAPER_FIGURE` + `CONTESTED_CLAIM` and `U` = ungrounded hot takes (`HOT_TAKE_CULTURE` or `CONTESTED_CLAIM`, `NONE` or `OTHER_IMAGE`, `technical_rigor_score <= 2`).
 
 ## Open questions
 
@@ -63,6 +62,9 @@ None yet. Each entry will give the claim, its ledger row and its data version.
 | D6 | 2026-11-12 | Add scikit-learn, and the arXiv and Semantic Scholar APIs for paper metadata. | accepted | plan decision 32; AGENTS.md §5; `pyproject.toml` |
 | D7 | 2026-11-14 | Cap new Apify spend at $10, enforced in code. | accepted | plan decision 33; AGENTS.md §5 |
 | D8 | 2026-11-14 | Audience-filter target: Cohen's kappa at least 0.8 on `is_researcher_post`. | accepted | plan decision 34 |
+| D18 | 2026-11-17 | Add H5 and experiment E7 on `<2,500`-follower breakout posts across 3 sub-tiers (`min_strata=2`). | accepted | plan decision 61; `E7_small_account_breakout.md` |
+| D17 | 2026-11-17 | Manual post hand-labelling (40-post pilot and 200/100-post held-out validation) waived; trust Jev rubric v2 (`jev-latest`) directly while keeping statistical gates. | accepted | plan decision 60; AGENTS.md §2.4 |
+| D16 | 2026-11-17 | Manual 75-candidate admission review waived; `configs/roster_v1.csv` finalised directly from Jev's draft via `roster.py --finalise --trust-jev`. | accepted | plan decision 59; AGENTS.md §4 |
 | D15 | 2026-11-14 | Pre-run review round 6: own and benchmark timelines join the roster run under its $5 cap; Jev's admissions hold up if Ben confirms at least 85% of its admits. Pre-run review complete. | accepted | plan decisions 57–58 |
 | D14 | 2026-11-14 | Pre-run review round 5: one-week top-up for the other 112 borderline accounts ($0.30); the eight hand-picked accounts join the roster, flagged; roster timelines newest month first with a $5 cap. | accepted | plan decisions 54–56 |
 | D13 | 2026-11-14 | Pre-run review round 4: E1 cross-paper gate needs 5 strata; borderline candidates get a month of posts and a re-judgment ($0.50 cap); tier quotas become caps of 150; organisations left out of the roster. | accepted | plan decisions 50–53 |

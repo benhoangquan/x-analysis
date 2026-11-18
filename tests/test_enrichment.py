@@ -152,3 +152,100 @@ def test_agreement_reports_framing_and_poster_role_when_present():
     from src.enrichment.evaluate import report
 
     assert "## pilot" in report(gold, model)
+
+
+def test_thread_cues_and_adapter_post_kind():
+    from src.enrichment.rules import add_rule_features, thread_cues
+    from src.ingestion.adapters import normalise_row
+
+    assert thread_cues("1/6 Here is our new ablation study") == (True, 6)
+    assert thread_cues("New ablation results (1/8)") == (True, 8)
+    assert thread_cues("New results 🧵") == (True, 2)
+    assert thread_cues("We cut memory by 1/2 the compute budget") == (False, 1)
+
+    df = pd.DataFrame({
+        "text": ["1/6 First post", "Plain post"],
+        "media_count": [0, 0],
+        "created_at": ["2026-10-01T00:00:00Z", "2026-10-02T00:00:00Z"],
+        "post_kind": ["original", "original"],
+    })
+    out = add_rule_features(df)
+    assert out["is_thread_opener"].tolist() == [True, False]
+    assert out["thread_length"].tolist() == [6, 1]
+    assert out["post_kind"].tolist() == ["thread_opener", "original"]
+
+    norm = normalise_row({
+        "id": "99", "userName": "u", "createdAt": "2026-10-01T00:00:00Z",
+        "collected_at": "2026-10-10T00:00:00Z", "cohort": "ROSTER", "source": "apify",
+        "followers": 500, "likes": 1, "replies": 0, "retweetCount": 0, "quoteCount": 0,
+        "text": "A thread on tokenizers 🧵",
+    })  # fmt: skip
+    assert norm["post_kind"] == "thread_opener"
+
+
+def test_classify_populates_poster_role_and_lazy_s2():
+    from src.schema import PosterRole
+
+    posts = pd.DataFrame({
+        "post_id": ["1", "2", "3"],
+        "author_handle": ["alice", "bob", "carol"],
+        "author_name": ["Alice Smith", "Bob Jones", "Carol Plain"],
+        "author_bio": ["PhD", "Builder", ""],
+        "text": [
+            "Check https://arxiv.org/abs/2608.00001",
+            "Check https://arxiv.org/abs/2608.00001",
+            "Just a normal post without paper",
+        ],
+        "paper_id": ["2608.00001", "2608.00001", None],
+        "media_kind": [None, None, None],
+        "media_urls": [[], [], []],
+    })
+
+    def fake_transport(body, _headers):
+        if "paper_title" in body["state"]:
+            return {"answers": {"own_work": {"noul": 0.1}, "bio": {"noul": 0.2}}, "usage": {}}
+        return {"answers": answers(), "usage": {}}
+
+    judge = JevJudge(token="t", transport=fake_transport)
+    s2_calls = []
+    out = run(
+        posts,
+        judge,
+        pd.DataFrame(),
+        paper_meta={"2608.00001": ("Title", "Alice Smith; Dan")},
+        s2_lookup=lambda name: s2_calls.append(name) or 4,
+    ).set_index("post_id")
+    # Alice matched author list -> ORIGINAL without triggering S2;
+    # Bob was NON -> S2 upgraded to CREDENTIALED; Carol had no paper
+    assert out.loc["1", "poster_role"] == PosterRole.ORIGINAL_RESEARCHER
+    assert out.loc["2", "poster_role"] == PosterRole.CREDENTIALED_RESEARCHER
+    assert out.loc["2", "s2_papers"] == 4
+    assert pd.isna(out.loc["3", "poster_role"])
+    assert s2_calls == ["Bob Jones"]
+
+
+def test_classify_concurrent_checkpoint_and_prob_serialisation(tmp_path):
+    from src.enrichment.classify import _serialise_prob_cols
+
+    posts = pd.DataFrame({
+        "post_id": ["1", "2", "3"],
+        "text": ["a", "b", "c"],
+        "media_kind": [None, None, None],
+        "media_urls": [[], [], []],
+    })
+
+    class J:
+        version = "v2"
+
+        def label(self, post_id, text, media_kind, image):
+            return PostLabels(
+                post_id=post_id, label_version="v2",
+                archetype_probs={"OTHER": 0.9}, framing_probs={"OPEN_QUESTION": 0.1},
+            )
+
+    ckpt = tmp_path / "ckpt.parquet"
+    out = _serialise_prob_cols(
+        run(posts, J(), pd.DataFrame(), workers=2, checkpoint_path=ckpt, checkpoint_every=2)
+    )
+    assert ckpt.exists() and len(out) == 3
+    assert all(isinstance(v, str) for v in out["archetype_probs"])

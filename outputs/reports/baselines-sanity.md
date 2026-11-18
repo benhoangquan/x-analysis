@@ -1,17 +1,17 @@
 # Baselines sanity check
 
-Reach model: log(views) = intercept + slope * log(max(followers, 100)). Fit: slope 0.27, intercept 8.40 on
-1428 posts from 810 authors. Status: **reliable**.
-Posts with a trailing-30-day baseline (>=3 prior eligible posts, OWN/BENCHMARK): 312 posts across 10 authors.
+Reach model: log(views) = intercept + slope * log(max(followers, 100)). Fit: slope 0.59, intercept 1.84 on
+8315 posts from 192 authors. Status: **reliable**.
+Posts with a trailing-30-day baseline (>=3 prior eligible posts, OWN/BENCHMARK/ROSTER): 7811 posts across 108 authors.
 
 ## Per follower tier (eligible, mature posts)
 
-| follower_tier | posts | authors | median_views | median_r_out | median_reach_vs_expected | median_s_intent | median_cr_bmk |
-|---|---|---|---|---|---|---|---|
-| <2k | 123 | 94 | 33,472 | 52.0 | 1.50 | 0.0279 | 1.91 |
-| 2k-20k | 388 | 263 | 75,050 | 9.0 | 1.55 | 0.0376 | 3.00 |
-| 20k-200k | 458 | 283 | 96,894 | 1.5 | 1.09 | 0.0283 | 2.72 |
-| >200k | 459 | 170 | 103,533 | 0.1 | 0.62 | 0.0194 | 1.60 |
+| follower_tier | posts | authors | median_views | median_r_out | median_reach_vs_expected | median_s_intent | median_cr_bmk | capped_posts | median_cr_bmk_shrunk |
+|---|---|---|---|---|---|---|---|---|---|
+| <2k | 1414 | 241 | 306 | 0.7 | 1.29 | 0.0230 | 0.35 | 906 | 3.28 |
+| 2k-20k | 4500 | 121 | 903 | 0.1 | 0.77 | 0.0252 | 3.07 | 1,202 | 3.32 |
+| 20k-200k | 2524 | 38 | 6,066 | 0.1 | 1.31 | 0.0222 | 1.41 | 602 | 2.65 |
+| >200k | 222 | 7 | 29,032 | 0.1 | 2.04 | 0.0194 | 2.89 | 160 | 3.00 |
 
 Review checklist: reach_vs_expected medians near 1.0 within each tier; the fit slope below 1
 (views grow slower than followers); tiers with one author are not comparable to each other.

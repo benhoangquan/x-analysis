@@ -44,6 +44,14 @@ class Framing(StrEnum):
     DECLARATIVE_OTHER = "DECLARATIVE_OTHER"
 
 
+class PosterRole(StrEnum):
+    """notes/30_concepts/poster_role.md; precedence in this order."""
+
+    ORIGINAL_RESEARCHER = "ORIGINAL_RESEARCHER"
+    CREDENTIALED_RESEARCHER = "CREDENTIALED_RESEARCHER"
+    NON_RESEARCHER = "NON_RESEARCHER"
+
+
 class PostKind(StrEnum):
     ORIGINAL = "original"
     QUOTE = "quote"
@@ -56,6 +64,8 @@ class Post(BaseModel):
     post_id: str
     author_handle: str
     author_id: str | None = None
+    author_name: str | None = None
+    author_bio: str | None = None
     cohort: Cohort
     url: str | None = None
     created_at: datetime
@@ -104,6 +114,12 @@ class PostLabels(BaseModel):
     rigor_prob: float | None = None
     framing: Framing | None = None  # None on v1 labels, which did not ask
     framing_probs: dict[str, float] = Field(default_factory=dict)
+    poster_role: PosterRole | None = None
+    role_version: str | None = None
+    p_own_work: float | None = None
+    p_bio_research: float | None = None
+    name_match: bool | None = None
+    s2_papers: int | None = None
     label_confidence: float | None = None  # min over the label confidences
     label_rationale: str | None = None  # Jev returns probabilities, not rationales
     image_used: bool = False

@@ -5,13 +5,14 @@ from __future__ import annotations
 import base64
 import json
 import os
+import threading
 import time
 import urllib.error
 import urllib.request
 from collections.abc import Callable
 from typing import Any, Protocol
 
-from src.enrichment import rubric
+from src.enrichment import poster_role, rubric
 from src.schema import PostLabels
 
 JEV_URL = "https://api.typesafe.ai/v1/systemone"
@@ -42,6 +43,8 @@ def _http(body: dict[str, Any], headers: dict[str, str]) -> dict[str, Any]:
             return json.loads(resp.read())
     except urllib.error.HTTPError as e:
         raise JevError(e.code, e.read().decode()[:300]) from e
+    except (urllib.error.URLError, TimeoutError, OSError) as e:
+        raise JevError(503, str(e)[:300]) from e
 
 
 class JevJudge:
@@ -53,8 +56,10 @@ class JevJudge:
             raise RuntimeError("JEV_TOKEN is not set")
         self.model = model
         self.version = rubric.label_version(model)
+        self.role_version = poster_role.role_version(model)
         self.transport = transport
         self.input_tokens = 0  # running total, for cost reporting
+        self._lock = threading.Lock()
 
     def _call(self, body: dict[str, Any], with_image: bool) -> dict[str, Any]:
         headers = {"Content-Type": "application/json", "Authorization": f"Bearer {self.token}"}
@@ -63,10 +68,11 @@ class JevJudge:
         for attempt in range(4):
             try:
                 out = self.transport(body, headers)
-                self.input_tokens += out.get("usage", {}).get("input_tokens", 0)
+                with self._lock:
+                    self.input_tokens += out.get("usage", {}).get("input_tokens", 0)
                 return out
             except JevError as e:
-                if e.status == 429 and attempt < 3:
+                if e.status in (429, 500, 502, 503, 504) and attempt < 3:
                     time.sleep(2**attempt)
                     continue
                 raise
@@ -75,6 +81,22 @@ class JevJudge:
     def ask(self, body: dict[str, Any]) -> dict[str, Any]:
         """Send a text-only request built elsewhere (for example roster admission)."""
         return self._call(body, with_image=False)
+
+    def label_role(
+        self,
+        post_text: str,
+        name: str,
+        bio: str,
+        paper_title: str,
+        paper_authors: str,
+        s2_papers: int | None = None,
+    ) -> dict[str, Any]:
+        """Separate Jev call for `poster_role` on a paper-linked post (decision 30)."""
+        body = poster_role.build_request(
+            post_text, name, bio, paper_title, paper_authors, self.model
+        )
+        out = self.ask(body)
+        return poster_role.parse(out["answers"], name, paper_authors, s2_papers=s2_papers)
 
     def label(
         self, post_id: str, text: str, media_kind: str | None, image: bytes | None

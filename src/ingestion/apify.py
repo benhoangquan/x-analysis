@@ -15,6 +15,7 @@ import argparse
 import csv
 import json
 import os
+import urllib.error
 import urllib.parse
 import urllib.request
 from collections.abc import Callable
@@ -72,7 +73,7 @@ def record_spend(
     new = not log.exists()
     log.parent.mkdir(parents=True, exist_ok=True)
     with log.open("a", newline="") as f:
-        w = csv.writer(f)
+        w = csv.writer(f, lineterminator="\n")
         if new:
             w.writerow(SPEND_COLS)
         stamp = datetime.now(UTC).isoformat(timespec="seconds")
@@ -86,8 +87,12 @@ def _http_transport(url: str, payload: dict[str, Any], token: str) -> list[dict[
         headers={"Content-Type": "application/json", "Authorization": f"Bearer {token}"},
         method="POST",
     )
-    with urllib.request.urlopen(req, timeout=600) as resp:  # noqa: S310
-        return json.loads(resp.read())
+    try:
+        with urllib.request.urlopen(req, timeout=600) as resp:  # noqa: S310
+            return json.loads(resp.read())
+    except urllib.error.HTTPError as e:
+        detail = e.read().decode(errors="replace")[:300]
+        raise RuntimeError(f"Apify HTTP {e.code}: {detail}") from e
 
 
 def build_input(queries: list[str], max_items: int, sort: str = "Latest") -> dict[str, Any]:

@@ -10,7 +10,8 @@
     uv run python -m src.ingestion.roster --draw            # free: draft roster, caps of 150
     uv run python -m src.ingestion.roster --score-review    # free: Ben's review vs Jev's key
     uv run python -m src.ingestion.roster --score-review --finalise  # writes configs/roster_v1.csv
-    uv run python -m src.ingestion.roster --collect-roster  # spends, within $5; needs the review
+    uv run python -m src.ingestion.roster --finalise --trust-jev     # decision 59: skip review
+    uv run python -m src.ingestion.roster --collect-roster  # spends, within $5; needs final roster
 """
 
 from __future__ import annotations
@@ -135,9 +136,24 @@ def collect_authors(handles: list[str], runner, spend_log: Path, w: Window) -> d
     """Grouped `from:` queries over one window, sized from observed posts per account to aim
     at RECENT_TARGET real posts; a run that hits the cap is split in two and rerun."""
     worst = RECENT_MAX_ITEMS * APIFY_PRICE_PER_1K_USD / 1000
-    rest, todo = list(handles), []
-    seen_posts = seen_accounts = runs = capped = 0
     tag = w.since.replace("-", "")
+    existing = sorted(w.out_dir.glob(f"{w.prefix}{tag}_*.jsonl")) if w.out_dir.exists() else []
+    done_handles: set[str] = set()
+    seen_posts = seen_accounts = 0
+    for path in existing:
+        qs = queries_for(path) or []
+        q_authors: set[str] = set()
+        for q in qs:
+            q_authors |= set(parse_query(q).authors)
+        if q_authors and (len(read_items([path])) < RECENT_MAX_ITEMS or len(q_authors) == 1):
+            done_handles |= q_authors
+            seen_posts += len(guarded([path]))
+            seen_accounts += len(q_authors)
+    rest = [h for h in handles if h.lower() not in done_handles]
+    todo: list[list[str]] = []
+    runs = 0
+    run_seq = len(existing)
+    capped = 0
     while rest or todo:
         if label_spent(spend_log, w.prefix) + worst > w.budget + 1e-9:
             break
@@ -148,8 +164,9 @@ def collect_authors(handles: list[str], runner, spend_log: Path, w: Window) -> d
             k = author_groups(rest, est, w)
             group, rest = rest[:k], rest[k:]
         runs += 1
+        run_seq += 1
         q = authors_query(group, w.since, w.until)
-        path = runner([q], RECENT_MAX_ITEMS, f"{w.prefix}{tag}_{runs:03d}", out_dir=w.out_dir,
+        path = runner([q], RECENT_MAX_ITEMS, f"{w.prefix}{tag}_{run_seq:03d}", out_dir=w.out_dir,
                       spend_log=spend_log)  # fmt: skip
         n = len(read_items([path]))
         if n >= RECENT_MAX_ITEMS and len(group) > 1:
@@ -364,6 +381,16 @@ def finalise(draft: pd.DataFrame, done: pd.DataFrame, cands: pd.DataFrame) -> pd
     return out[cols].sort_values(["tier", "handle"]).reset_index(drop=True)
 
 
+def finalise_from_draft(draft: pd.DataFrame) -> pd.DataFrame:
+    """Decision 59: finalise directly from Jev's draft roster without manual review."""
+    cols = ["handle", "tier", "followers", "hand_picked", "review"]
+    return (
+        draft.assign(review="jev_trusted")[cols]
+        .sort_values(["tier", "handle"])
+        .reset_index(drop=True)
+    )
+
+
 def review_sheet(
     cands: pd.DataFrame, adm: pd.DataFrame, seed: int = 20261114, key_path: Path = REVIEW_KEY
 ) -> pd.DataFrame:
@@ -399,6 +426,11 @@ def main() -> None:
     ap.add_argument("--collect-roster", action="store_true")
     ap.add_argument("--score-review", action="store_true")
     ap.add_argument("--finalise", action="store_true")
+    ap.add_argument(
+        "--trust-jev",
+        action="store_true",
+        help="finalise from Jev draft without manual review (decision 59)",
+    )
     a = ap.parse_args()
     from src.ingestion.apify import SPEND_LOG, _load_dotenv, run
 
@@ -438,7 +470,10 @@ def main() -> None:
         print(f"{len(targets)} borderline accounts without a month of posts")
         print(collect_authors(targets, run, SPEND_LOG, WEEK_TOPUP))
     score: dict = {}
-    if a.score_review or a.collect_roster or a.finalise:
+    need_review = a.score_review or (a.finalise and not a.trust_jev) or (
+        a.collect_roster and REVIEW_DONE.exists()
+    )
+    if need_review:
         if not REVIEW_DONE.exists():
             raise SystemExit(f"decision 12: roster collection waits for {REVIEW_DONE}")
         done, key = pd.read_csv(REVIEW_DONE, dtype=str), pd.read_csv(REVIEW_KEY, dtype=str)
@@ -447,10 +482,15 @@ def main() -> None:
         if a.collect_roster and not score["passes"]:
             raise SystemExit("decision 58: review not complete or admits below 85%; revise first")
     if a.finalise:
-        if not (a.score_review or a.collect_roster) or not score["passes"]:
-            raise SystemExit("run --finalise together with --score-review once the review passes")
-        draft, cands = pd.read_csv(ROSTER_DRAFT, dtype=str), pd.read_csv(CANDIDATES, dtype=str)
-        final = finalise(draft, done, cands)
+        if a.trust_jev:
+            final = finalise_from_draft(pd.read_csv(ROSTER_DRAFT, dtype=str))
+        else:
+            if not (a.score_review or a.collect_roster) or not score["passes"]:
+                raise SystemExit(
+                    "run --finalise together with --score-review once the review passes"
+                )
+            draft, cands = pd.read_csv(ROSTER_DRAFT, dtype=str), pd.read_csv(CANDIDATES, dtype=str)
+            final = finalise(draft, done, cands)
         ROSTER_FILE.parent.mkdir(parents=True, exist_ok=True)
         final.to_csv(ROSTER_FILE, index=False)
         print(f"{len(final)} accounts -> {ROSTER_FILE}")

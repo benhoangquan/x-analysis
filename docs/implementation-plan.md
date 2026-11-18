@@ -17,10 +17,10 @@ Changes in revision 3:
 | # | Milestone | Status |
 |---|---|---|
 | 0 | Scaffold | Done |
-| 1 | Handle list and collection | In progress. Test batch, 200-paper panel, own-paper search, Jev admission, two borderline top-ups and a 200-account draft roster done (2026-11-14, $1.105 spent); Ben's 75-candidate review pending; roster timelines not collected (collector built and tested, gated on the review). |
-| 2 | Baselines | Code exists from v0 (maturity, tiers, trailing medians, reach fit). Needs the per-author cap and the new swipe-file bar, then a rerun on new data. |
-| 3 | Labels v2 | Rubric v2 written, not yet run (decision 41): audience-only researcher question and `framing` in `src/enrichment/rubric.py`; `poster_role` in `src/enrichment/poster_role.py` (Semantic Scholar count not wired in). Pilot sheet with Ben. Rubric v1, Jev judge with images, label cache, label sheet and agreement report exist. The v1 labels on 1,603 v0 posts are unvalidated (0 of 21 sheet rows labelled). Audience rubric, author check, 200-post set, taxonomy revision, `framing` and `poster_role` not started. |
-| 4 | Analysis | Not started. `src/analysis/mvp.py` is descriptive only. Hypothesis tests E1–E6 drafted in `notes/40_experiments/` (2026-11-12); each is frozen once milestones 1–3 supply its feasibility counts. |
+| 1 | Handle list and collection | Done. Test batch, 200-paper panel, own-paper search, Jev admission, two borderline top-ups, and 200-account `configs/roster_v1.csv` (`--trust-jev`, decision 59) done; `ROSTER` + `OWN` + `BENCHMARK` collected (`2026-10-08..11-07` 206/206 accounts, `2026-09-08..10-08` 206/206, `2026-08-09..09-08` 97/206 at `$4.9744` cap; `7,529` posts kept); Decision 45 panel expansion collected `115` multi-roster-poster papers (`315` seeds total, `78` papers with `>=3` posters, `40` with an author + another poster, `$0.9768` total panel spend; `$6.8684` total Apify spend of `$10.00`); `v0` raw files archived to `data/raw/_v0/`; 10/10 ingested posts spot-checked against raw JSONL. |
+| 2 | Baselines | Done. `8,660` eligible mature posts (`1,780` filler dropped, `2,870` `in_author_cap`) in `data/processed/posts_enriched.parquet`; `ROSTER` reach model reliable (`slope=0.59, intercept=1.84` on `8,315` posts / `192` authors); `7,811` posts with trailing-30-day baselines; `outputs/reports/mvp-findings.md` and `outputs/reports/baselines-sanity.md` regenerated without stale text. |
+| 3 | Labels v2 | In progress (blocked on `JEV_TOKEN`). Audience-only researcher question and `framing` in `src/enrichment/rubric.py`; `poster_role` + Semantic Scholar lookup (`src/enrichment/s2.py`) wired into `classify.py`. arXiv (`2,711` papers) and Semantic Scholar (`2,630` papers, `348` venue-accepted, `2,612` with h-index) metadata complete. Pilot & held-out manual labelling waived (decision 60). Jev smoke test (`--limit 5`) failed with `HTTP 401: authentication_error`, blocking full `8,660`-post classification until `JEV_TOKEN` is refreshed. |
+| 4 | Analysis | Code complete: `experiments.py` covers `E1`–`E7`; `lift.py`, `swipe.py`, and `report.py` built and unit-tested. Hypothesis tests `E1`–`E7` stay `draft` until milestones 1–3 supply feasibility counts. |
 | 5 | Posting experiment | Not started. Needs milestone 4 and Martin's agreement. |
 | 6 | Static overview | `outputs/reports/overview.html` exists on v0 data. Dashboard postponed. |
 | 7 | Weekly refresh (optional) | Not started. |
@@ -99,6 +99,9 @@ Revision 3 addendum (2026-11-14):
 | 56 | Collection | Roster timelines are collected newest month first, with their own cap of $5; if the cap is reached the oldest weeks are lost, not whole accounts, and the window actually covered is reported. Collection still waits on Ben's admission review (decision 12). |
 | 57 | Collection | The own and benchmark timelines (`@tiptreesystems`, `@martincsweiss1`, `@elicitorg`, `@huggingface`, `@arxiv`, `@wandb`; decision 17) are collected in the same run as the roster, under its $5 cap. |
 | 58 | Corpus | Jev's admissions hold up if Ben says yes to at least 85% of the 50 Jev admitted in the review (43 or more). Below that, the admission questions are revised and rerun before anything is collected. `roster.py --collect-roster` checks this. |
+| 59 | Corpus | Ben reviewed Jev's admission output and waived the 75-candidate manual admission review (`data/gold/admission_review_done.csv`, amending decisions 12 and 58). `configs/roster_v1.csv` is finalised directly from `roster_draft.csv` via `roster.py --finalise --trust-jev`, and `--collect-roster` proceeds once `configs/roster_v1.csv` exists. |
+| 60 | Labels | Ben waived Milestone 3 manual post hand-labelling (the 40-post pilot check and the 200-post / 100-post held-out human kappa gates, amending decisions 19, 20, 30, 34, and 41), trusting Jev rubric v2 (`jev-latest`) directly for V0 while keeping all statistical evidence gates (`>=20` posts, `>=10` authors, strata minimums, 99% intervals) in force. |
+| 61 | Experiments | Add H5 and experiment `E7` on `<2,500`-follower breakout posts (`impressions >= 200`, `reach_vs_expected > 1.0`), comparing grounded figure+contested-claim posts (`G`) vs ungrounded hot takes (`U`) across 3 follower sub-tiers (`<500`, `500-999`, `1000-2499`) with `min_strata = 2`, `MIN_POSTS = 20`, `MIN_AUTHORS = 10`, and 99% author-clustered bootstrap intervals. |
 
 ## Still open
 
@@ -233,6 +236,7 @@ src/
     rules.py       # deterministic features and the hype lint
     rubric.py      # audience definition, archetype and rigor anchors, framing (rubric v2)
     poster_role.py # poster role request and truth table (decision 30)
+    s2.py          # Semantic Scholar author paper count and paper venue/h-index lookup
     judge.py       # provider-neutral Judge interface, Jev implementation
     classify.py    # CLI from AGENTS.md: --model, resumable, cached by label version; --ids/--out for the pilot check
     label_sheet.py # stratified, blind hand-label sheet
@@ -241,7 +245,7 @@ src/
     lift.py        # pooled lifts, author-clustered bootstrap, evidence gate
     swipe.py       # swipe-file selection -> data/swipe_file/
     report.py      # findings and templates, generated from the lift tables
-    experiments.py # E1–E6 entry points: stratified rate ratio, negative control, summary block
+    experiments.py # E1–E7 entry points: stratified rate ratio, negative control, summary block
     charts.py      # static overview page
 tests/  scripts/  configs/  notes/  outputs/reports/  docs/  data/{raw,processed,swipe_file,gold}/
 ```
@@ -311,7 +315,7 @@ Correlations in the corpus suggest templates; only Tiptree posting them shows wh
 
 ## Hypothesis tests
 
-The hypotheses (H1–H4) and open questions live in `notes/10_project_doc.md`. Their tests, E1–E6, are in `notes/40_experiments/`, which also holds the estimator (stratified rate ratio), evidence gate, verdict rule and run ledger. They run in milestone 4 on milestone 1–3 outputs, plus the paper panel (decision 29) and two new labels (decision 30). Levers that E2 and E4 support become the template arm of the posting experiment, the only causal test.
+The hypotheses (H1–H5) and open questions live in `notes/10_project_doc.md`. Their tests, E1–E7, are in `notes/40_experiments/`, which also holds the estimator (stratified rate ratio), evidence gate, verdict rule and run ledger. They run in milestone 4 on milestone 1–3 outputs, plus the paper panel (decision 29) and two new labels (decision 30). Levers that E2 and E4 support become the template arm of the posting experiment, the only causal test.
 
 ## Milestones
 
@@ -321,7 +325,7 @@ The hypotheses (H1–H4) and open questions live in `notes/10_project_doc.md`. T
 | 1 | Handle list and collection within the $10 cap: candidate pool, Jev admission, Ben's review of 75 candidates, quota sampling, monthly `OR`-batched collection of `ROSTER`, `OWN` and `BENCHMARK`, then the paper panel (first batch of 30 papers, then the rest), v0 raw files moved to `data/raw/_v0/` | Item G | Admission review passed; coverage table per cohort and tier meets the quotas; first-batch checks for E, F and the panel recorded here; 10 posts spot-checked against X |
 | 2 | Baselines: trailing author medians, per-author cap, shrunk `CR_bmk`, reach fit | Milestone 1 | Sanity table per tier reviewed; MVP and sanity reports regenerated on new data without stale text |
 | 3 | Labels v2: audience rubric, 200-post hand-labelled set (with `framing`), 100 paper-linked posts for `poster_role`, taxonomy revision, relabel, agreement report | Milestone 1 | Held-out targets met and the corpus labelled |
-| 4 | Analysis: lift tables, swipe file, findings, templates, hypothesis tests E1–E6 | Milestones 2–3 | Every number in the findings traces to a lift row or a ledger row |
+| 4 | Analysis: lift tables, swipe file, findings, templates, hypothesis tests E1–E7 | Milestones 2–3 | Every number in the findings traces to a lift row or a ledger row |
 | 5 | Posting experiment | Milestone 4, Martin's agreement | 20 posts per arm; result written up |
 | 6 | Static overview extended; dashboard reconsidered | Milestone 4 | Overview runs on real data and matches the report |
 | 7 | Weekly refresh (optional) | Milestone 6 | A refresh adds a week without re-collecting old posts |

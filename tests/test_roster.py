@@ -108,6 +108,34 @@ def test_finalise_applies_ben_verdicts_but_keeps_hand_picked():
     assert out.loc["c", "review"] == "ben_yes" and out.loc["a", "review"] == "not_reviewed"
 
 
+def test_finalise_from_draft_trust_jev():
+    from src.ingestion.roster import finalise_from_draft
+
+    draft = pd.DataFrame({
+        "handle": ["b", "a", "seed"],
+        "tier": ["<2k", "2k-20k", "<2k"],
+        "followers": ["10", "5000", "50"],
+        "sources": ["ownpaper", "panel", "seed"],
+        "hand_picked": ["False", "False", "True"],
+    })
+    out = finalise_from_draft(draft)
+    assert list(out.columns) == ["handle", "tier", "followers", "hand_picked", "review"]
+    assert list(out["handle"]) == ["a", "b", "seed"]
+    assert (out["review"] == "jev_trusted").all()
+    assert out.set_index("handle").loc["seed", "hand_picked"] == "True"
+
+
+def test_collect_authors_resumes_skipping_completed_accounts(tmp_path):
+    from src.ingestion.roster import Window, collect_authors
+
+    w = Window("2026-10-08", "2026-11-07", 5.0, "roster_", tmp_path / "r", 2.0)
+    log = tmp_path / "s.csv"
+    first = collect_authors(["u1", "u2"], _runner(3), log, w)
+    assert first["accounts_done"] == 2 and first["runs"] == 1
+    second = collect_authors(["u1", "u2", "u3"], _runner(3), log, w)
+    assert second["runs"] == 1 and second["accounts_done"] == 3 and second["accounts_left"] == 0
+
+
 def test_cohorts_from_roster_file(tmp_path, monkeypatch):
     from src import config
     from src.schema import Cohort

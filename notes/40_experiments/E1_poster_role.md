@@ -35,6 +35,8 @@ Tests: H1 (wording in the project doc). "Poster tier" is [poster role](../30_con
 - 2026-11-14 (draft, before freeze): panel growth fallback cut to 100 papers to fit the $10 cap (plan decision 36).
 - 2026-11-14 (draft, before freeze): roles redefined by credentials instead of hype or curation; primary measure changed from `CR_bmk` to `S_intent` (Ben).
 
+- 2026-11-17 (before freeze): Milestone 3 manual hand-labelling waived under plan decision 60 (`label_version=cf3607061e63`, `role_version=55945d80ebf0`). Outcome-blind feasibility counts on `v1-2026-11-17` (`734` capped paper-linked posts across `372` authors; roles `NON_RESEARCHER=372`, `ORIGINAL_RESEARCHER=287`, `CREDENTIALED_RESEARCHER=75`; filter-passing shares `98.6%`, `96.0%`, `86.6%`): cross-paper `tier_cat` strata (`min_strata=5`) clear all gates (`H1a`: `372`/`362` posts, `182`/`198` authors, `25` strata; `H1b-O`: `287`/`372` posts, `176`/`182` authors, `18` strata; `H1b-C`: `75`/`372` posts, `33`/`182` authors, `21` strata). Within-paper secondary strata (`min_strata=20`): `H1a-wp=37`, `H1b-O-wp=31`, `H1b-C-wp=13` (`insufficient`).
+
 ## Runs
 
 ## Verdict

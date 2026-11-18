@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 from datetime import UTC, datetime
 from pathlib import Path
 
@@ -15,15 +16,24 @@ import pandas as pd
 from src.config import cohort_for
 from src.ingestion.adapters import rows_to_posts
 from src.ingestion.filler import queries_for, split_filler
+from src.ingestion.panel import SEEDS, panel_posts
 from src.metrics.formulas import add_metrics
 from src.schema import Cohort
 
 DEFAULT_OUT = Path("data/processed/posts.parquet")
+STAMP_RE = re.compile(r"_(\d{8}T\d{6}Z)\.jsonl$")
+
+
+def _collected_stamp(input_path: Path) -> str:
+    m = STAMP_RE.search(input_path.name)
+    if m:
+        return datetime.strptime(m.group(1), "%Y%m%dT%H%M%SZ").replace(tzinfo=UTC).isoformat()
+    return datetime.fromtimestamp(input_path.stat().st_mtime, UTC).isoformat()
 
 
 def _read_rows(input_path: Path, dropped: list[tuple[int, str]] | None = None) -> list[dict]:
     if input_path.suffix == ".jsonl":
-        collected = datetime.fromtimestamp(input_path.stat().st_mtime, UTC).isoformat()
+        collected = _collected_stamp(input_path)
         rows = [json.loads(x) for x in input_path.read_text().splitlines() if x.strip()]
         rows = [r for r in rows if not r.get("noResults")]  # actor placeholder rows
         queries = queries_for(input_path)
@@ -31,6 +41,18 @@ def _read_rows(input_path: Path, dropped: list[tuple[int, str]] | None = None) -
             rows, filler = split_filler(rows, queries)
             if dropped is not None:
                 dropped += [(-1, f"filler from {input_path.name}: {r.get('id')}") for r in filler]
+        if "panel" in input_path.parts and SEEDS.exists():
+            seeds = pd.read_csv(SEEDS, dtype=str)
+            valid_ids = set(panel_posts(seeds, [input_path])["post_id"])
+            kept = [
+                r for r in rows
+                if str(r.get("id")) in valid_ids and not r.get("isReply") and not r.get("isRetweet")
+            ]
+            kept_obj = {id(r) for r in kept}
+            filler = [r for r in rows if id(r) not in kept_obj]
+            if dropped is not None:
+                dropped += [(-1, f"filler from {input_path.name}: {r.get('id')}") for r in filler]
+            rows = kept
         default = Cohort.PANEL if "panel" in input_path.parts else Cohort.DISCOVERED
         for r in rows:
             handle = (r.get("author") or {}).get("userName") or r.get("userName") or ""

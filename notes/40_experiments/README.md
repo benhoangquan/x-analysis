@@ -12,6 +12,7 @@ Hypothesis tests for the claims in [../10_project_doc.md](../10_project_doc.md).
 | [E4](E4_framing.md) | H4: question vs claim vs curiosity gap | roster | `framing` label | draft |
 | [E5](E5_variance_shares.md) | Open question 1: variance share of five factors | paper panel | E1–E3 inputs | draft, exploratory |
 | [E6](E6_reply_vs_bookmark_language.md) | Open question 2: reply vs bookmark language | roster | rule features | draft, exploratory |
+| [E7](E7_small_account_breakout.md) | H5: small-account breakout vs polarization | roster + panel (`<2,500`) | Quote-to-Retweet ratio, sub-tiers | draft |
 
 Status values: `draft` → `frozen` (pre-registration committed after Ben approves) → `running` → `done`.
 
@@ -22,8 +23,8 @@ Shared definitions: [paper panel](../30_concepts/paper_panel.md), [poster role](
 1. **Before new data:** build the stratified estimator and the negative control, then dry-run each experiment on v0. Dry runs check code only; their status is `dry_run` and they are never evidence.
 2. **Data:** milestone 1, plus the paper panel's first batch of 30 papers, which checks the `url:` search and the number of posters per paper.
 3. **Labels:** milestone 3, with `poster_role` and `framing` added to the hand-label set.
-4. **Freeze E1–E4.** Counting arms and strata is allowed before freezing; outcomes are not looked at. A feasibility gate that fails changes the primary test before the freeze, as each file states.
-5. **Run:** E6 and E4 (roster), then E1 and E2 (panel), then E3, then E5.
+4. **Freeze E1–E4 and E7.** Counting arms and strata is allowed before freezing; outcomes are not looked at. A feasibility gate that fails changes the primary test before the freeze, as each file states.
+5. **Run:** E6, E4 and E7 (roster/small accounts), then E1 and E2 (panel), then E3, then E5.
 6. **Causal test:** levers supported by E2 and E4 become the template arm of the posting experiment (plan milestone 5). Everything before it is association.
 
 ## The loop
@@ -57,17 +58,17 @@ Every comparison of two arms A and B is a Mantel–Haenszel rate ratio over stra
 RR = Σ_s (c_As · e_Bs / e_s) / Σ_s (c_Bs · e_As / e_s),   e_s = e_As + e_Bs
 ```
 
-`c` is the count (bookmarks, other people's replies, or the weighted interactions of `S_intent`) and `e` the exposure (impressions; likes for bookmarks per like). Only strata holding both arms contribute. Interval: percentile bootstrap with 2,000 resamples of the cluster unit (papers for paper strata, authors otherwise).
+`c` is the count (bookmarks, other people's replies, or the weighted interactions of `S_intent`) and `e` the exposure (impressions; likes for bookmarks per like). Only strata holding both arms contribute. When one arm has zero total count across all contributing strata while the other arm is positive, a Haldane `+0.5` continuity adjustment is applied across contributing strata so zero-count arms (e.g., zero bookmarks in H5) stay finite. Interval: percentile bootstrap with 2,000 resamples of the cluster unit (papers for paper strata, authors otherwise).
 
 Simplicity bar: a method more complex than this is used only where this one cannot answer the question (E3, E5), and the pre-registration says why. At equal results, the simpler method is the one reported.
 
 ## Evidence gate
 
-A test gets a verdict only with at least 20 posts per arm, 10 distinct authors per arm and 20 contributing strata. Otherwise its verdict is `insufficient`. This is the plan's minimum evidence plus a strata count. One exception: E1's cross-paper tests need 5 contributing strata (plan decision 50).
+A test gets a verdict only with at least 20 posts per arm, 10 distinct authors per arm and 20 contributing strata. Otherwise its verdict is `insufficient`. This is the plan's minimum evidence plus a strata count. Exceptions: E1's cross-paper tests need 5 contributing strata (plan decision 50), and E7's sub-tier tests need 2 contributing strata across the 3 sub-tiers within `<2,500` followers (plan decision 61).
 
 ## Verdict rule
 
-H1–H4 have eight primary tests between them, so verdicts use 99% intervals; 95% intervals are reported alongside. The smallest effect worth changing how Martin writes is a rate ratio of 1.2 (0.83 in the other direction).
+H1–H5 have eleven primary tests between them (E1 three, E2 one, E3 one, E4 three, E7 three), so verdicts use 99% intervals; 95% intervals are reported alongside. The smallest effect worth changing how Martin writes is a rate ratio of 1.2 (0.83 in the other direction).
 
 | Verdict | Directional prediction (RR > 1) | Null prediction ("no lift") |
 |---|---|---|
